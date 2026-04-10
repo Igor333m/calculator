@@ -249,7 +249,7 @@
 
           <div class="field" style="grid-column:1/-1"><div class="sub-section-label">Regulatory & Filing Fees / Parking / Other</div></div>
           <div class="field">
-            <label>IFTA filing fee</label>
+            <label>IFTA quarterly filing labor/service fees</label>
             <div class="input-wrap"><span class="prefix">$</span><input type="number" id="ifta_fee" value="25" step="1"></div>
           </div>
           <div class="field">
@@ -339,7 +339,7 @@
           <div class="field">
             <label>Carrier % (of gross revenue)</label>
             <div class="input-wrap">
-              <input type="number" id="carrier_pct" value="0" min="0" max="100" step="0.5" class="no-prefix" style="padding-right:28px;">
+              <input type="number" id="carrier_pct" value="12" min="0" max="100" step="0.5" class="no-prefix" style="padding-right:28px;">
               <span class="suffix-label">%</span>
             </div>
           </div>
@@ -384,7 +384,7 @@
             <div class="input-wrap"><span class="prefix">$</span><input type="number" id="tolls" value="300" step="10"></div>
           </div>
           <div class="field">
-            <label>Driver pay / self-pay ($/month)</label>
+            <label>Additional Driver Pay / self-pay ($/month)</label>
             <div class="input-wrap"><span class="prefix">$</span><input type="number" id="driver" value="0" step="100"></div>
           </div>
           <div class="field">
@@ -458,8 +458,7 @@ function calc(){
 
   const total = fuel + monthly_ins + equip_fixed + annual_monthly + maint + carrier_total + other_ops;
   const cpm   = total / miles;
-  const annualTotal = total * 12 +
-    n('truck_reg') + n('ucr') + n('ifta_sticker') + n('dot_physical') + n('hvut') + n('other_annual');
+  const annualTotal = total * 12;
 
   // Update top results
   document.getElementById('r-total').textContent = fmt(total, 0);
@@ -475,7 +474,7 @@ function calc(){
   const netRpm = rpm * (1 - totalPctFees / 100);
 
   if(rpm > 0){
-    const ppm = netRpm - cpm;
+    const ppm = rpm - cpm;
     ppmEl.textContent = (ppm >= 0 ? '+' : '') + fmt(ppm, 3);
     ppmEl.className = 'r-value ' + (ppm >= 0 ? 'profit-positive' : 'profit-negative');
     ppmSub.textContent = totalPctFees > 0
