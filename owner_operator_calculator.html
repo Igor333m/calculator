@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Owner Operator Cost Calculator</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  .app { max-width: 960px; margin: 0 auto; }
+
+  /* Header */
+  .header {
+    text-align: center;
+    padding: 32px 24px 24px;
+    background: linear-gradient(135deg, #1e3a5f 0%, #0f2744 100%);
+    border-radius: 16px 16px 0 0;
+    border-bottom: 2px solid #2563eb;
+  }
+  .header h1 { font-size: 26px; font-weight: 700; color: #fff; letter-spacing: -0.5px; margin-bottom: 6px; }
+  .header p { font-size: 13px; color: #94a3b8; }
+  .truck-icon { font-size: 32px; margin-bottom: 8px; display: block; }
+
+  /* Main */
+  .main { background: #1e293b; padding: 24px; border-radius: 0 0 16px 16px; }
+
+  /* Results bar */
+  .results-bar { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 28px; }
+  .result-card {
+    background: #0f172a; border-radius: 12px; padding: 16px;
+    text-align: center; border: 1px solid #334155;
+  }
+  .result-card.main-result {
+    background: linear-gradient(135deg, #1d4ed8, #1e40af);
+    border-color: #3b82f6;
+  }
+  .result-card .r-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; margin-bottom: 6px; }
+  .result-card.main-result .r-label { color: #bfdbfe; }
+  .result-card .r-value { font-size: 26px; font-weight: 700; color: #f1f5f9; line-height: 1; }
+  .result-card .r-sub { font-size: 11px; color: #64748b; margin-top: 4px; }
+  .result-card.main-result .r-sub { color: #93c5fd; }
+  .profit-positive { color: #4ade80 !important; }
+  .profit-negative { color: #f87171 !important; }
+
+  /* Second results row */
+  .results-bar-2 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 28px; }
+
+  /* Input grid */
+  .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+  @media (max-width: 640px) {
+    .input-grid { grid-template-columns: 1fr; }
+    .results-bar, .results-bar-2 { grid-template-columns: 1fr; }
+    .col3 { grid-template-columns: 1fr 1fr !important; }
+  }
+  @media (max-width: 400px) {
+    .col3 { grid-template-columns: 1fr !important; }
+  }
+
+  .section { background: #0f172a; border-radius: 12px; overflow: hidden; border: 1px solid #1e3a5f; }
+  .section.full-width { grid-column: 1 / -1; }
+
+  .section-head {
+    background: #1e3a5f; padding: 10px 16px;
+    font-size: 12px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.08em; color: #93c5fd;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-head .ico { font-size: 14px; }
+
+  .field-list { padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 12px; color: #94a3b8; font-weight: 500; }
+
+  .input-wrap { position: relative; display: flex; align-items: center; }
+  .input-wrap .prefix {
+    position: absolute; left: 10px; font-size: 13px;
+    color: #64748b; pointer-events: none; font-weight: 600;
+  }
+  .input-wrap input {
+    width: 100%; padding: 8px 10px 8px 22px;
+    background: #1e293b; border: 1px solid #334155;
+    border-radius: 8px; color: #60a5fa; font-size: 14px;
+    font-weight: 700; font-family: inherit; outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .input-wrap input.no-prefix { padding-left: 10px; }
+  .input-wrap input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.2); }
+  .input-wrap input:hover { border-color: #475569; }
+  .suffix-label {
+    position: absolute; right: 10px; font-size: 13px;
+    color: #64748b; pointer-events: none; font-weight: 600;
+  }
+
+  /* Breakdown */
+  .breakdown { margin-top: 24px; background: #0f172a; border-radius: 12px; border: 1px solid #1e3a5f; overflow: hidden; }
+  .breakdown-head { background: #1e3a5f; padding: 10px 16px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #93c5fd; }
+  .breakdown-row { display: flex; align-items: center; padding: 10px 16px; border-bottom: 1px solid #1e293b; gap: 12px; }
+  .breakdown-row:last-child { border-bottom: none; }
+  .br-label { flex: 1; font-size: 13px; color: #94a3b8; }
+  .br-bar-wrap { flex: 2; }
+  .br-bar-bg { height: 6px; background: #1e293b; border-radius: 3px; }
+  .br-bar { height: 6px; border-radius: 3px; transition: width 0.4s ease; }
+  .br-cpm { font-size: 13px; font-weight: 700; color: #e2e8f0; min-width: 68px; text-align: right; }
+  .br-pct { font-size: 11px; color: #475569; min-width: 38px; text-align: right; }
+
+  .footer-note { text-align: center; font-size: 11px; color: #475569; margin-top: 16px; padding-bottom: 4px; }
+
+  /* Section divider label */
+  .sub-section-label {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.07em; color: #475569; margin-top: 4px;
+    padding-bottom: 4px; border-bottom: 1px solid #1e293b;
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <span class="truck-icon">🚛</span>
+    <h1>Owner Operator Cost Calculator</h1>
+    <p>Enter your numbers — results update instantly</p>
+  </div>
+
+  <div class="main">
+
+    <!-- Results Row 1 -->
+    <div class="results-bar">
+      <div class="result-card">
+        <div class="r-label">Total Monthly Cost</div>
+        <div class="r-value" id="r-total">—</div>
+        <div class="r-sub">all expenses</div>
+      </div>
+      <div class="result-card main-result">
+        <div class="r-label">Cost Per Mile (CPM)</div>
+        <div class="r-value" id="r-cpm">—</div>
+        <div class="r-sub">break-even rate</div>
+      </div>
+      <div class="result-card">
+        <div class="r-label">Profit Per Mile (PPM)</div>
+        <div class="r-value" id="r-ppm">—</div>
+        <div class="r-sub" id="r-ppm-sub">enter revenue/mi</div>
+      </div>
+    </div>
+
+    <!-- Results Row 2 -->
+    <div class="results-bar-2">
+      <div class="result-card">
+        <div class="r-label">Annual Total Cost</div>
+        <div class="r-value" id="r-annual">—</div>
+        <div class="r-sub">monthly × 12 + annual fees</div>
+      </div>
+      <div class="result-card">
+        <div class="r-label">Monthly Fuel Cost</div>
+        <div class="r-value" id="r-fuel">—</div>
+        <div class="r-sub">fuel + DEF</div>
+      </div>
+      <div class="result-card">
+        <div class="r-label">Carrier / Dispatch Fee</div>
+        <div class="r-value" id="r-carrier">—</div>
+        <div class="r-sub">MC + factoring costs/mo</div>
+      </div>
+    </div>
+
+    <!-- Inputs -->
+    <div class="input-grid">
+
+      <!-- Miles & Revenue -->
+      <div class="section full-width">
+        <div class="section-head"><span class="ico">📍</span> Miles & Revenue</div>
+        <div class="field-list" style="display:grid;grid-template-columns:1fr 1fr;gap:12px 20px;">
+          <div class="field">
+            <label>Miles driven per month</label>
+            <div class="input-wrap">
+              <input type="number" id="miles" value="10000" min="1" class="no-prefix">
+            </div>
+          </div>
+          <div class="field">
+            <label>Revenue per mile (optional)</label>
+            <div class="input-wrap">
+              <span class="prefix">$</span>
+              <input type="number" id="rpm" value="2.50" min="0" step="0.01">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Monthly Fixed Costs -->
+      <div class="section full-width">
+        <div class="section-head"><span class="ico">📋</span> Monthly Fixed Costs</div>
+        <div class="field-list col3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px 20px;">
+          <div class="field" style="grid-column:1/-1"><div class="sub-section-label">Equipment Payments</div></div>
+          <div class="field">
+            <label>Truck payment</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="truck_pay" value="2200" step="50"></div>
+          </div>
+          <div class="field">
+            <label>Trailer payment</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="trailer_pay" value="800" step="50"></div>
+          </div>
+          <div class="field">
+            <label>Escrow ($/month)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="escrow" value="0" step="10"></div>
+          </div>
+
+          <div class="field" style="grid-column:1/-1"><div class="sub-section-label">Insurance (Required by Carrier)</div></div>
+          <div class="field">
+            <label>Occupational accident insurance</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="occ_accident" value="150" step="10"></div>
+          </div>
+          <div class="field">
+            <label>Bobtail insurance</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="bobtail" value="100" step="10"></div>
+          </div>
+          <div class="field">
+            <label>NTL – Non-trucking liability</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="ntl" value="50" step="10"></div>
+          </div>
+          <div class="field">
+            <label>Trailer interchange insurance</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="trailer_interchange" value="75" step="10"></div>
+          </div>
+
+          <div class="field" style="grid-column:1/-1"><div class="sub-section-label">Insurance (Required by Lender / Law)</div></div>
+          <div class="field">
+            <label>Physical damage insurance (truck)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="phys_damage" value="350" step="10"></div>
+          </div>
+          <div class="field">
+            <label>Cargo insurance</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="cargo_ins" value="200" step="10"></div>
+          </div>
+          <div class="field">
+            <label>Primary liability insurance (FMCSA)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="primary_liability" value="600" step="10"></div>
+          </div>
+          <div class="field">
+            <label>Trailer physical damage insurance</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="trailer_phys" value="100" step="10"></div>
+          </div>
+
+          <div class="field" style="grid-column:1/-1"><div class="sub-section-label">Regulatory & Filing Fees / Parking / Other</div></div>
+          <div class="field">
+            <label>IFTA filing fee</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="ifta_fee" value="25" step="1"></div>
+          </div>
+          <div class="field">
+            <label>Parking ($/month)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="parking" value="0" step="10"></div>
+          </div>
+          <div class="field">
+            <label>Other fixed ($/month)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="other_fixed" value="0" step="50"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Annual / Recurring Costs -->
+      <div class="section full-width">
+        <div class="section-head"><span class="ico">📅</span> Annual / Recurring Costs <span style="font-size:11px;color:#64748b;font-weight:400;text-transform:none;letter-spacing:0;">&nbsp;(divided by 12 for monthly CPM)</span></div>
+        <div class="field-list col3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px 20px;">
+          <div class="field">
+            <label>Truck registration / plates</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="truck_reg" value="2500" step="50"></div>
+          </div>
+          <div class="field">
+            <label>UCR registration</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="ucr" value="69" step="1"></div>
+          </div>
+          <div class="field">
+            <label>IFTA sticker / filing (annual)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="ifta_sticker" value="100" step="10"></div>
+          </div>
+          <div class="field">
+            <label>DOT physical exam</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="dot_physical" value="130" step="10"></div>
+          </div>
+          <div class="field">
+            <label>HVUT 2290</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="hvut" value="550" step="10"></div>
+          </div>
+          <div class="field">
+            <label>Other annual fees</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="other_annual" value="0" step="50"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fuel -->
+      <div class="section">
+        <div class="section-head"><span class="ico">⛽</span> Fuel</div>
+        <div class="field-list">
+          <div class="field">
+            <label>Fuel price ($/gallon)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="fuel_price" value="4.20" step="0.01"></div>
+          </div>
+          <div class="field">
+            <label>Truck MPG</label>
+            <div class="input-wrap"><input type="number" id="mpg" value="6.5" step="0.1" class="no-prefix"></div>
+          </div>
+          <div class="field">
+            <label>DEF cost ($/month)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="def" value="150"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Maintenance & Tires -->
+      <div class="section">
+        <div class="section-head"><span class="ico">🔧</span> Maintenance & Tires</div>
+        <div class="field-list">
+          <div class="field">
+            <label>Oil & service ($/month)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="oil" value="600" step="50"></div>
+          </div>
+          <div class="field">
+            <label>Tires ($/month)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="tires" value="400" step="50"></div>
+          </div>
+          <div class="field">
+            <label>Repairs & misc ($/month)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="repairs" value="500" step="50"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carrier / MC / Dispatch -->
+      <div class="section full-width">
+        <div class="section-head"><span class="ico">🏢</span> Carrier / MC / Dispatch / Factoring</div>
+        <div class="field-list">
+          <div class="field">
+            <label>Carrier % (of gross revenue)</label>
+            <div class="input-wrap">
+              <input type="number" id="carrier_pct" value="0" min="0" max="100" step="0.5" class="no-prefix" style="padding-right:28px;">
+              <span class="suffix-label">%</span>
+            </div>
+          </div>
+          <!-- <div class="field">
+            <label>Dispatch fee % (of gross revenue)</label>
+            <div class="input-wrap">
+              <input type="number" id="dispatch_pct" value="0" min="0" max="100" step="0.5" class="no-prefix" style="padding-right:28px;">
+              <span class="suffix-label">%</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>MC authority flat fee ($/month)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="mc_flat" value="0" step="10"></div>
+          </div> -->
+        </div>
+      </div>
+
+      <!-- Factoring -->
+      <!-- <div class="section">
+        <div class="section-head"><span class="ico">💵</span> Factoring</div>
+        <div class="field-list">
+          <div class="field">
+            <label>Factoring rate % (of gross revenue)</label>
+            <div class="input-wrap">
+              <input type="number" id="factoring_pct" value="0" min="0" max="10" step="0.1" class="no-prefix" style="padding-right:28px;">
+              <span class="suffix-label">%</span>
+            </div>
+          </div>
+          <div class="field">
+            <label>Factoring flat fee ($/month)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="factoring_flat" value="0" step="10"></div>
+          </div>
+        </div>
+      </div> -->
+
+      <!-- Cost Per Mile Additions -->
+      <div class="section full-width">
+        <div class="section-head"><span class="ico">➕</span> Additional Cost Per Mile</div>
+        <div class="field-list col3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px 20px;">
+          <div class="field">
+            <label>Tolls & scales ($/month)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="tolls" value="300" step="10"></div>
+          </div>
+          <div class="field">
+            <label>Driver pay / self-pay ($/month)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="driver" value="0" step="100"></div>
+          </div>
+          <div class="field">
+            <label>Admin & bookkeeping ($/month)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="admin" value="200" step="50"></div>
+          </div>
+          <div class="field">
+            <label>ELD / GPS / tech ($/month)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="eld" value="50" step="5"></div>
+          </div>
+          <div class="field">
+            <label>Other variable ($/month)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="other_variable" value="0" step="50"></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- end input-grid -->
+
+    <!-- Breakdown -->
+    <div class="breakdown">
+      <div class="breakdown-head">Cost Breakdown per Mile</div>
+      <div id="breakdown-rows"></div>
+    </div>
+
+    <div class="footer-note">Blue values = editable inputs &nbsp;|&nbsp; Annual costs are divided by 12 &nbsp;|&nbsp; Results update automatically</div>
+
+  </div><!-- end main -->
+</div><!-- end app -->
+
+<script>
+const BAR_COLORS = ['#3b82f6','#8b5cf6','#10b981','#f59e0b','#ef4444','#ec4899','#14b8a6'];
+const CATS = ['Fuel & DEF','Monthly Fixed Insurance','Equipment Payments','Annual Costs (÷12)','Maintenance & Tires','Carrier / MC / Factoring','Other Operating'];
+
+function n(id){ return parseFloat(document.getElementById(id).value) || 0; }
+function fmt(v, digits=2){ return '$' + v.toLocaleString('en-US',{minimumFractionDigits:digits,maximumFractionDigits:digits}); }
+
+function calc(){
+  const miles = n('miles') || 1;
+  const rpm   = n('rpm');
+  const grossRevenue = rpm * miles;
+
+  // Fuel
+  const fuel = (miles / (n('mpg') || 1)) * n('fuel_price') + n('def');
+
+  // Monthly insurance (carrier-required + lender/law)
+  const monthly_ins =
+    n('occ_accident') + n('bobtail') + n('ntl') + n('trailer_interchange') +
+    n('phys_damage') + n('cargo_ins') + n('primary_liability') + n('trailer_phys');
+
+  // Equipment payments + regulatory + other fixed
+  const equip_fixed =
+    n('truck_pay') + n('trailer_pay') + n('escrow') +
+    n('ifta_fee') + n('parking') + n('other_fixed');
+
+  // Annual costs ÷ 12
+  const annual_monthly =
+    (n('truck_reg') + n('ucr') + n('ifta_sticker') + n('dot_physical') + n('hvut') + n('other_annual')) / 12;
+
+  // Maintenance
+  const maint = n('oil') + n('tires') + n('repairs');
+
+  // Carrier / MC / Dispatch / Factoring (% of gross + flat fees)
+  // const carrier_cut   = grossRevenue * (n('carrier_pct') / 100);
+  // const dispatch_cut  = grossRevenue * (n('dispatch_pct') / 100);
+  // const factoring_cut = grossRevenue * (n('factoring_pct') / 100);
+  const carrier_total = grossRevenue * (n('carrier_pct') / 100);
+
+  // Other operating
+  const other_ops = n('tolls') + n('driver') + n('admin') + n('eld') + n('other_variable');
+
+  const total = fuel + monthly_ins + equip_fixed + annual_monthly + maint + carrier_total + other_ops;
+  const cpm   = total / miles;
+  const annualTotal = total * 12 +
+    n('truck_reg') + n('ucr') + n('ifta_sticker') + n('dot_physical') + n('hvut') + n('other_annual');
+
+  // Update top results
+  document.getElementById('r-total').textContent = fmt(total, 0);
+  document.getElementById('r-cpm').textContent   = fmt(cpm, 3);
+  document.getElementById('r-annual').textContent = fmt(annualTotal, 0);
+  document.getElementById('r-fuel').textContent   = fmt(fuel, 0);
+  document.getElementById('r-carrier').textContent = fmt(carrier_total, 0);
+
+  // PPM
+  const ppmEl  = document.getElementById('r-ppm');
+  const ppmSub = document.getElementById('r-ppm-sub');
+  const totalPctFees = n('carrier_pct'); // + n('dispatch_pct') + n('factoring_pct');
+  const netRpm = rpm * (1 - totalPctFees / 100);
+
+  if(rpm > 0){
+    const ppm = netRpm - cpm;
+    ppmEl.textContent = (ppm >= 0 ? '+' : '') + fmt(ppm, 3);
+    ppmEl.className = 'r-value ' + (ppm >= 0 ? 'profit-positive' : 'profit-negative');
+    ppmSub.textContent = totalPctFees > 0
+      ? `net ${fmt(netRpm,3)}/mi after ${totalPctFees.toFixed(1)}% fees`
+      : (ppm >= 0 ? 'you are profitable' : 'running at a loss');
+  } else {
+    ppmEl.textContent = '—';
+    ppmEl.className = 'r-value';
+    ppmSub.textContent = 'enter revenue/mi';
+  }
+
+  // Breakdown
+  const amts = [fuel, monthly_ins, equip_fixed, annual_monthly, maint, carrier_total, other_ops];
+  const rows = document.getElementById('breakdown-rows');
+  rows.innerHTML = amts.map((amt, i) => {
+    const pct = total > 0 ? amt / total * 100 : 0;
+    const cpm_c = amt / miles;
+    return `<div class="breakdown-row">
+      <div class="br-label">${CATS[i]}</div>
+      <div class="br-bar-wrap">
+        <div class="br-bar-bg">
+          <div class="br-bar" style="width:${pct.toFixed(1)}%;background:${BAR_COLORS[i]}"></div>
+        </div>
+      </div>
+      <div class="br-cpm">${fmt(cpm_c, 3)}/mi</div>
+      <div class="br-pct">${pct.toFixed(1)}%</div>
+    </div>`;
+  }).join('');
+}
+
+document.querySelectorAll('input').forEach(el => el.addEventListener('input', calc));
+calc();
+</script>
+</body>
+</html>
