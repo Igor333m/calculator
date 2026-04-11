@@ -32,8 +32,8 @@
   /* Main */
   .main { background: #1e293b; padding: 24px; border-radius: 0 0 16px 16px; }
 
-  /* Results bar */
-  .results-bar { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 28px; }
+  /* Results bar */   /* Second results row */
+  .results-bar, .results-bar-2 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin-bottom: 28px; }
   .result-card {
     background: #0f172a; border-radius: 12px; padding: 16px;
     text-align: center; border: 1px solid #334155;
@@ -49,9 +49,6 @@
   .result-card.main-result .r-sub { color: #93c5fd; }
   .profit-positive { color: #4ade80 !important; }
   .profit-negative { color: #f87171 !important; }
-
-  /* Second results row */
-  .results-bar-2 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 28px; }
 
   /* Input grid */
   .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
@@ -135,38 +132,48 @@
     <!-- Results Row 1 -->
     <div class="results-bar">
       <div class="result-card">
+        <div class="r-label">Monthly Revenue</div>
+        <div class="r-value" id="r-monthly-revenue">—</div>
+        <div class="r-sub">Total revenue</div>
+      </div> 
+      <div class="result-card">
         <div class="r-label">Total Monthly Cost</div>
         <div class="r-value" id="r-total">—</div>
-        <div class="r-sub">all expenses</div>
+        <div class="r-sub">All expenses</div>
       </div>
       <div class="result-card main-result">
         <div class="r-label">Cost Per Mile (CPM)</div>
         <div class="r-value" id="r-cpm">—</div>
-        <div class="r-sub">break-even rate</div>
+        <div class="r-sub">Break-even rate</div>
       </div>
       <div class="result-card">
         <div class="r-label">Profit Per Mile (PPM)</div>
         <div class="r-value" id="r-ppm">—</div>
-        <div class="r-sub" id="r-ppm-sub">enter revenue/mi</div>
+        <div class="r-sub" id="r-ppm-sub">Enter revenue/mi</div>
       </div>
     </div>
 
     <!-- Results Row 2 -->
     <div class="results-bar-2">
       <div class="result-card">
+        <div class="r-label">Annual Revenue</div>
+        <div class="r-value" id="r-annual-revenue">—</div>
+        <div class="r-sub">Monthly revenue × 12</div>
+      </div>
+      <div class="result-card">
         <div class="r-label">Annual Total Cost</div>
         <div class="r-value" id="r-annual">—</div>
-        <div class="r-sub">monthly × 12 + annual fees</div>
+        <div class="r-sub">Monthly × 12 + annual fees</div>
       </div>
       <div class="result-card">
         <div class="r-label">Monthly Fuel Cost</div>
         <div class="r-value" id="r-fuel">—</div>
-        <div class="r-sub">fuel + DEF</div>
+        <div class="r-sub">Fuel + DEF</div>
       </div>
       <div class="result-card">
-        <div class="r-label">Carrier / Dispatch Fee</div>
-        <div class="r-value" id="r-carrier">—</div>
-        <div class="r-sub">MC + factoring costs/mo</div>
+        <div class="r-label">Operating Profit</div>
+        <div class="r-value" id="r-monthly-profit">—</div>
+        <div class="r-sub">Monthly net profit after all costs</div>
       </div>
     </div>
 
@@ -187,7 +194,7 @@
             <label>Revenue per mile (optional)</label>
             <div class="input-wrap">
               <span class="prefix">$</span>
-              <input type="number" id="rpm" value="2.50" min="0" step="0.01">
+              <input type="number" id="rpm" value="2.45" min="0" step="0.01">
             </div>
           </div>
         </div>
@@ -200,65 +207,65 @@
           <div class="field" style="grid-column:1/-1"><div class="sub-section-label">Equipment Payments</div></div>
           <div class="field">
             <label>Truck payment</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="truck_pay" value="2200" step="50"></div>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="truck_pay" value="2500" step="50"></div>
           </div>
           <div class="field">
             <label>Trailer payment</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="trailer_pay" value="800" step="50"></div>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="trailer_pay" value="850" step="50"></div>
           </div>
           <div class="field">
             <label>Escrow ($/month)</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="escrow" value="0" step="10"></div>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="escrow" value="150" step="10"></div>
           </div>
 
           <div class="field" style="grid-column:1/-1"><div class="sub-section-label">Insurance (Required by Carrier)</div></div>
           <div class="field">
             <label>Occupational accident insurance</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="occ_accident" value="150" step="10"></div>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="occ_accident" value="160" step="10"></div>
           </div>
           <div class="field">
             <label>Bobtail insurance</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="bobtail" value="100" step="10"></div>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="bobtail" value="45" step="10"></div>
           </div>
           <div class="field">
             <label>NTL – Non-trucking liability</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="ntl" value="50" step="10"></div>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="ntl" value="45" step="10"></div>
           </div>
           <div class="field">
             <label>Trailer interchange insurance</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="trailer_interchange" value="75" step="10"></div>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="trailer_interchange" value="35" step="10"></div>
           </div>
 
           <div class="field" style="grid-column:1/-1"><div class="sub-section-label">Insurance (Required by Lender / Law)</div></div>
           <div class="field">
             <label>Physical damage insurance (truck)</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="phys_damage" value="350" step="10"></div>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="phys_damage" value="300" step="10"></div>
           </div>
           <div class="field">
             <label>Cargo insurance</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="cargo_ins" value="200" step="10"></div>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="cargo_ins" value="300" step="10"></div>
           </div>
           <div class="field">
             <label>Primary liability insurance (FMCSA)</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="primary_liability" value="600" step="10"></div>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="primary_liability" value="1000" step="10"></div>
           </div>
           <div class="field">
             <label>Trailer physical damage insurance</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="trailer_phys" value="100" step="10"></div>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="trailer_phys" value="50" step="10"></div>
           </div>
 
           <div class="field" style="grid-column:1/-1"><div class="sub-section-label">Regulatory & Filing Fees / Parking / Other</div></div>
           <div class="field">
             <label>IFTA quarterly filing labor/service fees</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="ifta_fee" value="25" step="1"></div>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="ifta_fee" value="20" step="1"></div>
           </div>
           <div class="field">
             <label>Parking ($/month)</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="parking" value="0" step="10"></div>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="parking" value="100" step="10"></div>
           </div>
           <div class="field">
             <label>Other fixed ($/month)</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="other_fixed" value="0" step="50"></div>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="other_fixed" value="100" step="50"></div>
           </div>
         </div>
       </div>
@@ -269,7 +276,7 @@
         <div class="field-list col3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px 20px;">
           <div class="field">
             <label>Truck registration / plates</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="truck_reg" value="2500" step="50"></div>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="truck_reg" value="2300" step="50"></div>
           </div>
           <div class="field">
             <label>UCR registration</label>
@@ -277,11 +284,11 @@
           </div>
           <div class="field">
             <label>IFTA sticker / filing (annual)</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="ifta_sticker" value="100" step="10"></div>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="ifta_sticker" value="25" step="10"></div>
           </div>
           <div class="field">
             <label>DOT physical exam</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="dot_physical" value="130" step="10"></div>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="dot_physical" value="120" step="10"></div>
           </div>
           <div class="field">
             <label>HVUT 2290</label>
@@ -289,7 +296,7 @@
           </div>
           <div class="field">
             <label>Other annual fees</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="other_annual" value="0" step="50"></div>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="other_annual" value="150" step="50"></div>
           </div>
         </div>
       </div>
@@ -304,11 +311,11 @@
           </div>
           <div class="field">
             <label>Truck MPG</label>
-            <div class="input-wrap"><input type="number" id="mpg" value="6.5" step="0.1" class="no-prefix"></div>
+            <div class="input-wrap"><input type="number" id="mpg" value="6.8" step="0.1" class="no-prefix"></div>
           </div>
           <div class="field">
             <label>DEF cost ($/month)</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="def" value="150"></div>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="def" value="120"></div>
           </div>
         </div>
       </div>
@@ -319,22 +326,22 @@
         <div class="field-list">
           <div class="field">
             <label>Oil & service ($/month)</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="oil" value="600" step="50"></div>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="oil" value="400" step="50"></div>
           </div>
           <div class="field">
-            <label>Tires ($/month)</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="tires" value="400" step="50"></div>
+            <label>Tires reserve ($/month)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="tires" value="250" step="50"></div>
           </div>
           <div class="field">
-            <label>Repairs & misc ($/month)</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="repairs" value="500" step="50"></div>
+            <label>Repairs & misc reserve ($/month)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="repairs" value="700" step="50"></div>
           </div>
         </div>
       </div>
 
       <!-- Carrier / MC / Dispatch -->
       <div class="section full-width">
-        <div class="section-head"><span class="ico">🏢</span> Carrier / MC / Dispatch / Factoring</div>
+        <div class="section-head"><span class="ico">🏢</span> Carrier (MC / Dispatch / Factoring)</div>
         <div class="field-list">
           <div class="field">
             <label>Carrier % (of gross revenue)</label>
@@ -381,7 +388,7 @@
         <div class="field-list col3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px 20px;">
           <div class="field">
             <label>Tolls & scales ($/month)</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="tolls" value="300" step="10"></div>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="tolls" value="250" step="10"></div>
           </div>
           <div class="field">
             <label>Additional Driver Pay / self-pay ($/month)</label>
@@ -393,11 +400,11 @@
           </div>
           <div class="field">
             <label>ELD / GPS / tech ($/month)</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="eld" value="50" step="5"></div>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="eld" value="45" step="5"></div>
           </div>
           <div class="field">
             <label>Other variable ($/month)</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="other_variable" value="0" step="50"></div>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="other_variable" value="100" step="50"></div>
           </div>
         </div>
       </div>
@@ -420,7 +427,11 @@ const BAR_COLORS = ['#3b82f6','#8b5cf6','#10b981','#f59e0b','#ef4444','#ec4899',
 const CATS = ['Fuel & DEF','Monthly Fixed Insurance','Equipment Payments','Annual Costs (÷12)','Maintenance & Tires','Carrier / MC / Factoring','Other Operating'];
 
 function n(id){ return parseFloat(document.getElementById(id).value) || 0; }
-function fmt(v, digits=2){ return '$' + v.toLocaleString('en-US',{minimumFractionDigits:digits,maximumFractionDigits:digits}); }
+// function fmt(v, digits=2){ return '$' + v.toLocaleString('en-US',{minimumFractionDigits:digits,maximumFractionDigits:digits}); }
+function fmt(v, digits=2){
+  return v >= 0 ? '$' + v.toLocaleString('en-US',{minimumFractionDigits:digits,maximumFractionDigits:digits}) : '-' + '$' + Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:digits,maximumFractionDigits:digits});
+  // return '$' + v.toLocaleString('en-US',{minimumFractionDigits:digits,maximumFractionDigits:digits});
+}
 
 function calc(){
   const miles = n('miles') || 1;
@@ -452,6 +463,7 @@ function calc(){
   // const dispatch_cut  = grossRevenue * (n('dispatch_pct') / 100);
   // const factoring_cut = grossRevenue * (n('factoring_pct') / 100);
   const carrier_total = grossRevenue * (n('carrier_pct') / 100);
+  const annual_gross_revenue = grossRevenue * 12
 
   // Other operating
   const other_ops = n('tolls') + n('driver') + n('admin') + n('eld') + n('other_variable');
@@ -459,31 +471,44 @@ function calc(){
   const total = fuel + monthly_ins + equip_fixed + annual_monthly + maint + carrier_total + other_ops;
   const cpm   = total / miles;
   const annualTotal = total * 12;
+  const monthly_profit = grossRevenue - total;
+
 
   // Update top results
+  document.getElementById('r-monthly-revenue').textContent = fmt(grossRevenue, 0);
   document.getElementById('r-total').textContent = fmt(total, 0);
   document.getElementById('r-cpm').textContent   = fmt(cpm, 3);
+
+  document.getElementById('r-annual-revenue').textContent = fmt(annual_gross_revenue, 0);
   document.getElementById('r-annual').textContent = fmt(annualTotal, 0);
   document.getElementById('r-fuel').textContent   = fmt(fuel, 0);
-  document.getElementById('r-carrier').textContent = fmt(carrier_total, 0);
 
   // PPM
   const ppmEl  = document.getElementById('r-ppm');
   const ppmSub = document.getElementById('r-ppm-sub');
   const totalPctFees = n('carrier_pct'); // + n('dispatch_pct') + n('factoring_pct');
-  const netRpm = rpm * (1 - totalPctFees / 100);
+  // const netRpm = rpm * (1 - totalPctFees / 100);
+  const monthlyProfit = document.getElementById('r-monthly-profit');
 
   if(rpm > 0){
     const ppm = rpm - cpm;
-    ppmEl.textContent = (ppm >= 0 ? '+' : '') + fmt(ppm, 3);
+    ppmEl.textContent = fmt(ppm, 3);
     ppmEl.className = 'r-value ' + (ppm >= 0 ? 'profit-positive' : 'profit-negative');
     ppmSub.textContent = totalPctFees > 0
-      ? `net ${fmt(netRpm,3)}/mi after ${totalPctFees.toFixed(1)}% fees`
+      ? `Net profit per mile after all costs`
       : (ppm >= 0 ? 'you are profitable' : 'running at a loss');
   } else {
     ppmEl.textContent = '—';
     ppmEl.className = 'r-value';
     ppmSub.textContent = 'enter revenue/mi';
+  }
+
+  if(monthly_profit >= 0) {
+    monthlyProfit.className = 'r-value profit-positive';
+    monthlyProfit.textContent = fmt(monthly_profit, 0);
+  } else {
+    monthlyProfit.className = 'r-value profit-negative';
+    monthlyProfit.textContent = fmt(monthly_profit, 0);
   }
 
   // Breakdown
