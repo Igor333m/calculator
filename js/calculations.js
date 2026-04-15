@@ -39,9 +39,9 @@ function calculate(inputs) {
 
   const maintenance = inputs.oil + inputs.tires + inputs.repairs;
   const carrierTotal = grossRevenue * (inputs.carrier_pct / 100);
+  const driverPay = inputs.driver;
   const otherOps =
     inputs.tolls +
-    inputs.driver +
     inputs.admin +
     inputs.eld +
     inputs.other_variable;
@@ -53,6 +53,7 @@ function calculate(inputs) {
     annualMonthly +
     maintenance +
     carrierTotal +
+    driverPay +
     otherOps;
 
   const cpm = total / miles;
@@ -87,6 +88,7 @@ function calculate(inputs) {
     annualMonthly,
     maintenance,
     carrierTotal,
+    driverPay,
     otherOps,
     total,
     cpm,
@@ -102,6 +104,7 @@ function calculate(inputs) {
     truePpm,
     deadPct,
     breakdown: [
+      driverPay,
       fuel,
       monthlyInsurance,
       equipmentFixed,

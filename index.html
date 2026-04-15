@@ -22,8 +22,8 @@
         <div class="r-label">Weekly Revenue</div>
         <div class="r-value" id="r-weekly-revenue">—</div>
         <div class="r-sub" id="r-weekly-revenue-sub">Monthly: —</div>
-        <div style="margin-top:8px;padding-top:8px;border-top:1px solid #1e3a5f;width:100%;">
-          <div class="r-value" id="r-monthly-revenue" style="font-size:18px;">—</div>
+        <div class="result-divider">
+          <div class="r-value r-value-sm" id="r-monthly-revenue">—</div>
           <div class="r-sub">Total revenue</div>
         </div>
       </div>
@@ -31,8 +31,8 @@
         <div class="r-label">Weekly Cost</div>
         <div class="r-value" id="r-weekly-cost">—</div>
         <div class="r-sub" id="r-weekly-cost-sub">Monthly: —</div>
-        <div style="margin-top:8px;padding-top:8px;border-top:1px solid #1e3a5f;width:100%;">
-          <div class="r-value" id="r-total" style="font-size:18px;">—</div>
+        <div class="result-divider">
+          <div class="r-value r-value-sm" id="r-total">—</div>
           <div class="r-sub">All expenses</div>
         </div>
       </div>
@@ -45,8 +45,8 @@
         <div class="r-label">Profit Per Mile (PPM)</div>
         <div class="r-value" id="r-ppm">—</div>
         <div class="r-sub" id="r-ppm-sub">w/ dead miles (true PPM)</div>
-        <div id="r-ppm-dead-wrap" style="display:none;margin-top:8px;padding-top:8px;border-top:1px solid #1e3a5f;width:100%;">
-          <div class="r-value" id="r-ppm-dead" style="font-size:18px;">—</div>
+        <div id="r-ppm-dead-wrap" class="result-divider result-hidden">
+          <div class="r-value r-value-sm" id="r-ppm-dead">—</div>
           <div class="r-sub">Loaded miles only</div>
         </div>
       </div>
@@ -73,8 +73,8 @@
         <div class="r-label">Operating Profit</div>
         <div class="r-value" id="r-monthly-profit">—</div>
         <div class="r-sub" id="r-monthly-profit-sub">Monthly net profit after all costs</div>
-        <div style="margin-top:8px;padding-top:8px;border-top:1px solid #1e3a5f;width:100%;">
-          <div class="r-value" id="r-weekly-profit" style="font-size:18px;">—</div>
+        <div class="result-divider">
+          <div class="r-value r-value-sm" id="r-weekly-profit">—</div>
           <div class="r-sub">Weekly net profit</div>
         </div>
       </div>
@@ -86,7 +86,7 @@
       <!-- Miles & Revenue -->
       <div class="section full-width">
         <div class="section-head"><span class="ico">📍</span> Miles & Revenue</div>
-        <div class="field-list" style="display:grid;grid-template-columns:1fr 1fr;gap:12px 20px;">
+        <div class="field-list field-list-grid-2">
           <div class="field">
             <label>Miles driven per month</label>
             <div class="input-wrap">
@@ -106,7 +106,7 @@
       <!-- Dead Miles -->
       <div class="section full-width dead-miles-section">
         <div class="section-head"><span class="ico">🚫</span> Dead Miles / Empty Miles</div>
-        <div class="field-list" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px 20px;" class="col3">
+        <div class="field-list col3 field-list-grid-3">
 
           <div class="field">
             <label>Dead miles per month</label>
@@ -118,13 +118,13 @@
           <div class="field">
             <label>Target max dead mile %</label>
             <div class="input-wrap">
-              <input type="number" id="dead_target_pct" value="10" min="0" max="100" step="1" class="no-prefix" style="padding-right:28px;">
+              <input type="number" id="dead_target_pct" value="10" min="0" max="100" step="1" class="no-prefix input-with-suffix">
               <span class="suffix-label">%</span>
             </div>
           </div>
 
           <div class="field">
-            <label style="color:#64748b;">Dead mile % of total</label>
+            <label class="label-muted">Dead mile % of total</label>
             <div class="target-indicator target-indicator-field" id="dead-target-indicator">
               <div class="target-dot" id="dead-target-dot"></div>
               <div class="target-text" id="dead-target-text">Enter dead miles to see status</div>
@@ -134,7 +134,7 @@
         </div>
 
         <!-- Computed stats row -->
-        <div class="dead-stats" style="grid-template-columns:1fr 1fr;">
+  <div class="dead-stats dead-stats-two-col">
           <div class="dead-stat">
             <div class="ds-label">Total Miles (loaded + dead)</div>
             <div class="ds-value" id="ds-total-miles">—</div>
@@ -142,9 +142,9 @@
           </div>
           <div class="dead-stat">
             <div class="ds-label">Dead Mile Cost</div>
-            <div class="ds-value" id="ds-dead-cost" style="color:#f87171;">—</div>
+            <div class="ds-value ds-value-danger" id="ds-dead-cost">—</div>
             <div class="ds-sub" id="ds-dead-cost-sub">Fuel + maintenance, zero revenue</div>
-            <div style="margin-top:6px;font-size:11px;color:#64748b;" id="ds-dead-cost-monthly"></div>
+            <div class="dead-cost-monthly" id="ds-dead-cost-monthly"></div>
           </div>
         </div>
 
@@ -155,8 +155,8 @@
       <!-- Monthly Fixed Costs -->
       <div class="section full-width">
         <div class="section-head"><span class="ico">📋</span> Monthly Fixed Costs</div>
-        <div class="field-list col3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px 20px;">
-          <div class="field" style="grid-column:1/-1"><div class="sub-section-label">Equipment Payments</div></div>
+        <div class="field-list col3 field-list-grid-3">
+          <div class="field field-full"><div class="sub-section-label">Equipment Payments</div></div>
           <div class="field">
             <label>Truck payment</label>
             <div class="input-wrap"><span class="prefix">$</span><input type="number" id="truck_pay" value="3000" step="50"></div>
@@ -170,7 +170,7 @@
             <div class="input-wrap"><span class="prefix">$</span><input type="number" id="escrow" value="150" step="10"></div>
           </div>
 
-          <div class="field" style="grid-column:1/-1"><div class="sub-section-label">Insurance (Required by Carrier)</div></div>
+          <div class="field field-full"><div class="sub-section-label">Insurance (Required by Carrier)</div></div>
           <div class="field">
             <label>Occupational accident insurance</label>
             <div class="input-wrap"><span class="prefix">$</span><input type="number" id="occ_accident" value="160" step="10"></div>
@@ -188,7 +188,7 @@
             <div class="input-wrap"><span class="prefix">$</span><input type="number" id="trailer_interchange" value="35" step="10"></div>
           </div>
 
-          <div class="field" style="grid-column:1/-1"><div class="sub-section-label">Insurance (Required by Lender / Law)</div></div>
+          <div class="field field-full"><div class="sub-section-label">Insurance (Required by Lender / Law)</div></div>
           <div class="field">
             <label>Physical damage insurance (truck)</label>
             <div class="input-wrap"><span class="prefix">$</span><input type="number" id="phys_damage" value="300" step="10"></div>
@@ -206,7 +206,7 @@
             <div class="input-wrap"><span class="prefix">$</span><input type="number" id="trailer_phys" value="50" step="10"></div>
           </div>
 
-          <div class="field" style="grid-column:1/-1"><div class="sub-section-label">Regulatory & Filing Fees / Parking / Other</div></div>
+          <div class="field field-full"><div class="sub-section-label">Regulatory & Filing Fees / Parking / Other</div></div>
           <div class="field">
             <label>IFTA quarterly filing labor/service fees</label>
             <div class="input-wrap"><span class="prefix">$</span><input type="number" id="ifta_fee" value="20" step="1"></div>
@@ -224,8 +224,8 @@
 
       <!-- Annual / Recurring Costs -->
       <div class="section full-width">
-        <div class="section-head"><span class="ico">📅</span> Annual / Recurring Costs <span style="font-size:11px;color:#64748b;font-weight:400;text-transform:none;letter-spacing:0;">&nbsp;(divided by 12 for monthly CPM)</span></div>
-        <div class="field-list col3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px 20px;">
+        <div class="section-head"><span class="ico">📅</span> Annual / Recurring Costs <span class="section-head-note">&nbsp;(divided by 12 for monthly CPM)</span></div>
+        <div class="field-list col3 field-list-grid-3">
           <div class="field">
             <label>Truck registration / plates</label>
             <div class="input-wrap"><span class="prefix">$</span><input type="number" id="truck_reg" value="2300" step="50"></div>
@@ -298,14 +298,14 @@
           <div class="field">
             <label>Carrier % (of gross revenue)</label>
             <div class="input-wrap">
-              <input type="number" id="carrier_pct" value="12" min="0" max="100" step="0.5" class="no-prefix" style="padding-right:28px;">
+              <input type="number" id="carrier_pct" value="12" min="0" max="100" step="0.5" class="no-prefix input-with-suffix">
               <span class="suffix-label">%</span>
             </div>
           </div>
           <!-- <div class="field">
             <label>Dispatch fee % (of gross revenue)</label>
             <div class="input-wrap">
-              <input type="number" id="dispatch_pct" value="0" min="0" max="100" step="0.5" class="no-prefix" style="padding-right:28px;">
+              <input type="number" id="dispatch_pct" value="0" min="0" max="100" step="0.5" class="no-prefix input-with-suffix">
               <span class="suffix-label">%</span>
             </div>
           </div>
@@ -323,7 +323,7 @@
           <div class="field">
             <label>Factoring rate % (of gross revenue)</label>
             <div class="input-wrap">
-              <input type="number" id="factoring_pct" value="0" min="0" max="10" step="0.1" class="no-prefix" style="padding-right:28px;">
+              <input type="number" id="factoring_pct" value="0" min="0" max="10" step="0.1" class="no-prefix input-with-suffix">
               <span class="suffix-label">%</span>
             </div>
           </div>
@@ -337,7 +337,7 @@
       <!-- Cost Per Mile Additions -->
       <div class="section full-width">
         <div class="section-head"><span class="ico">➕</span> Additional Cost Per Mile</div>
-        <div class="field-list col3" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px 20px;">
+        <div class="field-list col3 field-list-grid-3">
           <div class="field">
             <label>Tolls & scales ($/month)</label>
             <div class="input-wrap"><span class="prefix">$</span><input type="number" id="tolls" value="250" step="10"></div>
