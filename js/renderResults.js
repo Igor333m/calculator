@@ -1,9 +1,7 @@
 function renderResults(result) {
   const weeklyRevenue = document.getElementById('r-weekly-revenue');
-  const weeklyRevenueSub = document.getElementById('r-weekly-revenue-sub');
   const monthlyRevenue = document.getElementById('r-monthly-revenue');
   const weeklyCost = document.getElementById('r-weekly-cost');
-  const weeklyCostSub = document.getElementById('r-weekly-cost-sub');
   const total = document.getElementById('r-total');
   const cpm = document.getElementById('r-cpm');
   const cpmSub = document.getElementById('r-cpm-sub');
@@ -21,10 +19,8 @@ function renderResults(result) {
   const weeklyProfit = document.getElementById('r-weekly-profit');
 
   weeklyRevenue.textContent = formatCurrency(result.weeklyRevenue, 0);
-  weeklyRevenueSub.textContent = 'Monthly: ' + formatCurrency(result.grossRevenue, 0);
   monthlyRevenue.textContent = formatCurrency(result.grossRevenue, 0);
   weeklyCost.textContent = formatCurrency(result.weeklyCost, 0);
-  weeklyCostSub.textContent = 'Monthly: ' + formatCurrency(result.total, 0);
   total.textContent = formatCurrency(result.total, 0);
   cpm.textContent = formatCurrency(result.cpm, 3);
   cpmSub.textContent = result.deadMiles > 0
