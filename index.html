@@ -4,159 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Owner Operator Cost Calculator</title>
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: #0f172a;
-    color: #e2e8f0;
-    min-height: 100vh;
-    padding: 20px;
-  }
-
-  .app { max-width: 960px; margin: 0 auto; }
-
-  /* Header */
-  .header {
-    text-align: center;
-    padding: 32px 24px 24px;
-    background: linear-gradient(135deg, #1e3a5f 0%, #0f2744 100%);
-    border-radius: 16px 16px 0 0;
-    border-bottom: 2px solid #2563eb;
-  }
-  .header h1 { font-size: 26px; font-weight: 700; color: #fff; letter-spacing: -0.5px; margin-bottom: 6px; }
-  .header p { font-size: 13px; color: #94a3b8; }
-  .truck-icon { font-size: 32px; margin-bottom: 8px; display: block; }
-
-  /* Main */
-  .main { background: #1e293b; padding: 24px; border-radius: 0 0 16px 16px; }
-
-  /* Results bar */   /* Second results row */
-  .results-bar, .results-bar-2 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin-bottom: 28px; align-items: stretch; }
-  .result-card {
-    background: #0f172a; border-radius: 12px; padding: 16px;
-    text-align: center; border: 1px solid #334155;
-    display: flex; flex-direction: column; justify-content: center; align-items: center;
-  }
-  .result-card.main-result {
-    background: linear-gradient(135deg, #1d4ed8, #1e40af);
-    border-color: #3b82f6;
-  }
-  .result-card .r-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #94a3b8; margin-bottom: 6px; }
-  .result-card.main-result .r-label { color: #bfdbfe; }
-  .result-card .r-value { font-size: 26px; font-weight: 700; color: #f1f5f9; line-height: 1; }
-  .result-card .r-sub { font-size: 11px; color: #64748b; margin-top: 4px; }
-  .result-card.main-result .r-sub { color: #93c5fd; }
-  .profit-positive { color: #4ade80 !important; }
-  .profit-negative { color: #f87171 !important; }
-
-  /* Input grid */
-  .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-
-  @media (max-width: 640px) {
-    .input-grid { grid-template-columns: 1fr; }
-    .results-bar, .results-bar-2 { grid-template-columns: 1fr; }
-    .col3 { grid-template-columns: 1fr 1fr !important; }
-  }
-  @media (max-width: 400px) {
-    .col3 { grid-template-columns: 1fr !important; }
-  }
-
-  .section { background: #0f172a; border-radius: 12px; overflow: hidden; border: 1px solid #1e3a5f; }
-  .section.full-width { grid-column: 1 / -1; }
-
-  .section-head {
-    background: #1e3a5f; padding: 10px 16px;
-    font-size: 12px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.08em; color: #93c5fd;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .section-head .ico { font-size: 14px; }
-
-  .field-list { padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
-  .field { display: flex; flex-direction: column; gap: 4px; }
-  .field label { font-size: 12px; color: #94a3b8; font-weight: 500; }
-
-  .input-wrap { position: relative; display: flex; align-items: center; }
-  .input-wrap .prefix {
-    position: absolute; left: 10px; font-size: 13px;
-    color: #64748b; pointer-events: none; font-weight: 600;
-  }
-  .input-wrap input {
-    width: 100%; padding: 8px 10px 8px 22px;
-    background: #1e293b; border: 1px solid #334155;
-    border-radius: 8px; color: #60a5fa; font-size: 14px;
-    font-weight: 700; font-family: inherit; outline: none;
-    transition: border-color 0.15s, box-shadow 0.15s;
-  }
-  .input-wrap input.no-prefix { padding-left: 10px; }
-  .input-wrap input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.2); }
-  .input-wrap input:hover { border-color: #475569; }
-  .suffix-label {
-    position: absolute; right: 10px; font-size: 13px;
-    color: #64748b; pointer-events: none; font-weight: 600;
-  }
-
-  /* Breakdown */
-  .breakdown { margin-top: 24px; background: #0f172a; border-radius: 12px; border: 1px solid #1e3a5f; overflow: hidden; }
-  .breakdown-head { background: #1e3a5f; padding: 10px 16px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #93c5fd; }
-  .breakdown-row { display: flex; align-items: center; padding: 10px 16px; border-bottom: 1px solid #1e293b; gap: 12px; }
-  .breakdown-row:last-child { border-bottom: none; }
-  .br-label { flex: 1; font-size: 13px; color: #94a3b8; }
-  .br-bar-wrap { flex: 2; }
-  .br-bar-bg { height: 6px; background: #1e293b; border-radius: 3px; }
-  .br-bar { height: 6px; border-radius: 3px; transition: width 0.4s ease; }
-  .br-cpm { font-size: 13px; font-weight: 700; color: #e2e8f0; min-width: 68px; text-align: right; }
-  .br-pct { font-size: 11px; color: #475569; min-width: 38px; text-align: right; }
-
-  .footer-note { text-align: center; font-size: 11px; color: #475569; margin-top: 16px; padding-bottom: 4px; }
-
-  /* Section divider label */
-  .sub-section-label {
-    font-size: 11px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.07em; color: #475569; margin-top: 4px;
-    padding-bottom: 4px; border-bottom: 1px solid #1e293b;
-  }
-
-  /* Dead Miles section */
-  .section.dead-miles-section { border-color: #1d4ed8; }
-  .section.dead-miles-section .section-head { background: linear-gradient(135deg, #1e3a5f 0%, #1e3060 100%); border-bottom: 1px solid #1d4ed8; }
-
-  .dead-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 12px 14px 0; }
-  @media (max-width: 640px) { .dead-stats { grid-template-columns: 1fr 1fr; } }
-  .dead-stat {
-    background: #1e293b; border-radius: 10px; padding: 10px 12px;
-    border: 1px solid #334155;
-  }
-  .dead-stat .ds-label { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
-  .dead-stat .ds-value { font-size: 18px; font-weight: 700; color: #f1f5f9; }
-  .dead-stat .ds-sub { font-size: 11px; color: #475569; margin-top: 2px; }
-
-  .dead-callout {
-    margin: 10px 14px 14px;
-    background: #2d1515; border: 1px solid #7f1d1d;
-    border-radius: 10px; padding: 10px 14px;
-    font-size: 13px; color: #fca5a5;
-    display: none;
-  }
-  .dead-callout.visible { display: block; }
-
-  /* Target indicator */
-  .target-indicator {
-    display: flex; align-items: center; gap: 8px;
-    background: #1e293b; border-radius: 8px;
-    padding: 6px 10px; margin-top: 6px;
-  }
-  .target-dot {
-    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
-    background: #334155; transition: background 0.3s;
-  }
-  .target-dot.green { background: #4ade80; box-shadow: 0 0 6px #4ade8066; }
-  .target-dot.red   { background: #f87171; box-shadow: 0 0 6px #f8717166; }
-  .target-text { font-size: 12px; color: #94a3b8; }
-  .target-text strong { color: #e2e8f0; }
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="app">
@@ -273,16 +121,13 @@
               <input type="number" id="dead_target_pct" value="10" min="0" max="100" step="1" class="no-prefix" style="padding-right:28px;">
               <span class="suffix-label">%</span>
             </div>
-            <div class="target-indicator" id="dead-target-indicator">
-              <div class="target-dot" id="dead-target-dot"></div>
-              <div class="target-text" id="dead-target-text">Enter dead miles to see status</div>
-            </div>
           </div>
 
           <div class="field">
             <label style="color:#64748b;">Dead mile % of total</label>
-            <div class="input-wrap">
-              <input type="text" id="dead_pct_display" value="—" disabled class="no-prefix" style="color:#94a3b8;font-weight:600;background:#0f172a;cursor:default;">
+            <div class="target-indicator target-indicator-field" id="dead-target-indicator">
+              <div class="target-dot" id="dead-target-dot"></div>
+              <div class="target-text" id="dead-target-text">Enter dead miles to see status</div>
             </div>
           </div>
 
@@ -314,11 +159,11 @@
           <div class="field" style="grid-column:1/-1"><div class="sub-section-label">Equipment Payments</div></div>
           <div class="field">
             <label>Truck payment</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="truck_pay" value="2500" step="50"></div>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="truck_pay" value="3000" step="50"></div>
           </div>
           <div class="field">
             <label>Trailer payment</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="trailer_pay" value="850" step="50"></div>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="trailer_pay" value="1000" step="50"></div>
           </div>
           <div class="field">
             <label>Escrow ($/month)</label>
@@ -414,11 +259,11 @@
         <div class="field-list">
           <div class="field">
             <label>Fuel price ($/gallon)</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="fuel_price" value="4.20" step="0.01"></div>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="fuel_price" value="5.64" step="0.01"></div>
           </div>
           <div class="field">
             <label>Truck MPG</label>
-            <div class="input-wrap"><input type="number" id="mpg" value="6.8" step="0.1" class="no-prefix"></div>
+            <div class="input-wrap"><input type="number" id="mpg" value="6.5" step="0.1" class="no-prefix"></div>
           </div>
           <div class="field">
             <label>DEF cost ($/month)</label>
@@ -499,7 +344,7 @@
           </div>
           <div class="field">
             <label>Additional Driver Pay / self-pay ($/month)</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="driver" value="0" step="100"></div>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="driver" value="6500" step="100"></div>
           </div>
           <div class="field">
             <label>Admin & bookkeeping ($/month)</label>
@@ -529,202 +374,13 @@
   </div><!-- end main -->
 </div><!-- end app -->
 
-<script>
-const BAR_COLORS = ['#3b82f6','#8b5cf6','#10b981','#f59e0b','#ef4444','#ec4899','#14b8a6'];
-const CATS = ['Fuel & DEF','Monthly Fixed Insurance','Equipment Payments','Annual Costs (÷12)','Maintenance & Tires','Carrier / MC / Factoring','Other Operating'];
-
-function getNumericInputValue(id){ return parseFloat(document.getElementById(id).value) || 0; }
-// function formatCurrency(v, digits=2){ return '$' + v.toLocaleString('en-US',{minimumFractionDigits:digits,maximumFractionDigits:digits}); }
-function formatCurrency(v, digits=2){
-  return v >= 0 ? '$' + v.toLocaleString('en-US',{minimumFractionDigits:digits,maximumFractionDigits:digits}) : '-' + '$' + Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:digits,maximumFractionDigits:digits});
-  // return '$' + v.toLocaleString('en-US',{minimumFractionDigits:digits,maximumFractionDigits:digits});
-}
-
-function calc(){
-  const miles = getNumericInputValue('miles') || 1;
-  const rpm   = getNumericInputValue('rpm');
-  const grossRevenue = rpm * miles;
-
-  const dead_miles   = getNumericInputValue('dead_miles');
-  const target_pct   = getNumericInputValue('dead_target_pct');
-  const total_miles  = miles + dead_miles;
-  
-  
-  // Fuel
-  const mpg = getNumericInputValue('mpg') || 1;
-  const fuel_price = getNumericInputValue('fuel_price');
-  const fuel = (total_miles / mpg) * fuel_price + getNumericInputValue('def');
-
-
-  // Monthly insurance (carrier-required + lender/law)
-  const monthly_ins =
-    getNumericInputValue('occ_accident') + getNumericInputValue('bobtail') + getNumericInputValue('ntl') + getNumericInputValue('trailer_interchange') +
-    getNumericInputValue('phys_damage') + getNumericInputValue('cargo_ins') + getNumericInputValue('primary_liability') + getNumericInputValue('trailer_phys');
-
-  // Equipment payments + regulatory + other fixed
-  const equip_fixed =
-    getNumericInputValue('truck_pay') + getNumericInputValue('trailer_pay') + getNumericInputValue('escrow') +
-    getNumericInputValue('ifta_fee') + getNumericInputValue('parking') + getNumericInputValue('other_fixed');
-
-  // Annual costs ÷ 12
-  const annual_monthly =
-    (getNumericInputValue('truck_reg') + getNumericInputValue('ucr') + getNumericInputValue('ifta_sticker') + getNumericInputValue('dot_physical') + getNumericInputValue('hvut') + getNumericInputValue('other_annual')) / 12;
-
-  // Maintenance
-  const maint = getNumericInputValue('oil') + getNumericInputValue('tires') + getNumericInputValue('repairs');
-
-  const carrier_total = grossRevenue * (getNumericInputValue('carrier_pct') / 100);
-  const annual_gross_revenue = grossRevenue * 12;
-
-  // Other operating
-  const other_ops = getNumericInputValue('tolls') + getNumericInputValue('driver') + getNumericInputValue('admin') + getNumericInputValue('eld') + getNumericInputValue('other_variable');
-  
-  const total = fuel + monthly_ins + equip_fixed + annual_monthly + maint + carrier_total + other_ops;
-  const cpm   = total / miles;
-  const annualTotal = total * 12;
-  const monthly_profit = grossRevenue - total;
-  const maintenance_cpm = maint / miles;
-  const dead_mile_cost = dead_miles > 0
-    ? (dead_miles / mpg) * fuel_price + dead_miles * maintenance_cpm
-    : 0;
-  const break_even_loaded_rate = cpm; // cpm = total / miles; total already includes dead-mile fuel via (total_miles / mpg)
-
-  // Update top results
-  const weekly = grossRevenue / 4.33;
-  const weeklyCost = total / 4.33;
-  const weeklyFuel = fuel / 4.33;
-
-  document.getElementById('r-weekly-revenue').textContent = formatCurrency(weekly, 0);
-  document.getElementById('r-weekly-revenue-sub').textContent = 'Monthly: ' + formatCurrency(grossRevenue, 0);
-  document.getElementById('r-monthly-revenue').textContent = formatCurrency(grossRevenue, 0);
-  document.getElementById('r-weekly-cost').textContent = formatCurrency(weeklyCost, 0);
-  document.getElementById('r-weekly-cost-sub').textContent = 'Monthly: ' + formatCurrency(total, 0);
-  document.getElementById('r-total').textContent = formatCurrency(total, 0);
-  document.getElementById('r-cpm').textContent = formatCurrency(break_even_loaded_rate, 3);
-  document.getElementById('r-cpm-sub').textContent = dead_miles > 0
-    ? 'Cost per loaded mile (incl. dead-mile overhead)'
-    : 'Cost per loaded mile (all expenses)';
-
-  document.getElementById('r-annual-revenue').textContent = formatCurrency(annual_gross_revenue, 0);
-  document.getElementById('r-annual').textContent = formatCurrency(annualTotal, 0);
-  document.getElementById('r-weekly-fuel').textContent = formatCurrency(weeklyFuel, 0);
-  document.getElementById('r-weekly-fuel-sub').textContent = 'Monthly: ' + formatCurrency(fuel, 0);
-
-  // PPM
-  const ppmEl      = document.getElementById('r-ppm');
-  const ppmSub     = document.getElementById('r-ppm-sub');
-  const ppmDeadWrap = document.getElementById('r-ppm-dead-wrap');
-  const ppmDeadEl  = document.getElementById('r-ppm-dead');
-  const monthlyProfit = document.getElementById('r-monthly-profit');
-  const monthlyProfitSub = document.getElementById('r-monthly-profit-sub');
-  const weeklyProfit = document.getElementById('r-weekly-profit');
-
-  if (rpm > 0) {
-    const loaded_ppm = rpm - cpm;
-    const true_profit = grossRevenue - total;
-    const true_ppm = true_profit / total_miles;
-
-    ppmEl.textContent = formatCurrency(true_ppm, 3);
-    ppmEl.className = 'r-value ' + (true_ppm >= 0 ? 'profit-positive' : 'profit-negative');
-    ppmSub.textContent = 'w/ dead miles (true PPM)';
-
-    if (dead_miles > 0) {
-      ppmDeadEl.textContent   = formatCurrency(loaded_ppm, 3);
-      ppmDeadEl.className     = 'r-value ' + (loaded_ppm >= 0 ? 'profit-positive' : 'profit-negative');
-      ppmDeadEl.style.fontSize = '18px';
-      ppmDeadEl.style.color    = '';
-      ppmDeadWrap.style.display = 'block';
-    } else {
-      ppmDeadWrap.style.display = 'none';
-    }
-  } else {
-    ppmEl.textContent = '—';
-    ppmEl.className = 'r-value';
-    ppmSub.textContent = 'w/ dead miles (true PPM)';
-    ppmDeadWrap.style.display = 'none';
-  }
-
-  const true_monthly_profit = monthly_profit;
-  const true_weekly_profit = true_monthly_profit / 4.33;
-  if (true_monthly_profit >= 0) {
-    monthlyProfit.className = 'r-value profit-positive';
-    monthlyProfit.textContent = formatCurrency(true_monthly_profit, 0);
-  } else {
-    monthlyProfit.className = 'r-value profit-negative';
-    monthlyProfit.textContent = formatCurrency(true_monthly_profit, 0);
-  }
-  if (true_weekly_profit >= 0) {
-    weeklyProfit.className = 'r-value profit-positive';
-    weeklyProfit.textContent = formatCurrency(true_weekly_profit, 0);
-  } else {
-    weeklyProfit.className = 'r-value profit-negative';
-    weeklyProfit.textContent = formatCurrency(true_weekly_profit, 0);
-  }
-  weeklyProfit.style.fontSize = '18px';
-  monthlyProfitSub.textContent = dead_mile_cost > 0
-    ? `Dead-mile impact est. ${formatCurrency(dead_mile_cost, 0)}/mo`
-    : 'Monthly net profit after all costs';
-
-  // Breakdown
-  const amts = [fuel, monthly_ins, equip_fixed, annual_monthly, maint, carrier_total, other_ops];
-  const rows = document.getElementById('breakdown-rows');
-  rows.innerHTML = amts.map((amt, i) => {
-    const pct = total > 0 ? amt / total * 100 : 0;
-    const cpm_c = amt / miles;
-    return `<div class="breakdown-row">
-      <div class="br-label">${CATS[i]}</div>
-      <div class="br-bar-wrap">
-        <div class="br-bar-bg">
-          <div class="br-bar" style="width:${pct.toFixed(1)}%;background:${BAR_COLORS[i]}"></div>
-        </div>
-      </div>
-      <div class="br-cpm">${formatCurrency(cpm_c, 3)}/mi</div>
-      <div class="br-pct">${pct.toFixed(1)}%</div>
-    </div>`;
-  }).join('');
-
-  // ── Dead Miles ──────────────────────────────────────────────────────────────
-
-  const deadPctDisplay  = document.getElementById('dead_pct_display');
-  const dsTotalMiles    = document.getElementById('ds-total-miles');
-  const dsDeadCost      = document.getElementById('ds-dead-cost');
-  const deadCallout     = document.getElementById('dead-callout');
-  const targetDot       = document.getElementById('dead-target-dot');
-  const targetText      = document.getElementById('dead-target-text');
-
-  if (dead_miles > 0) {
-    const dead_pct    = (dead_miles / total_miles) * 100;
-
-    deadPctDisplay.value = dead_pct.toFixed(1) + '%';
-    dsTotalMiles.textContent  = total_miles.toLocaleString('en-US');
-    const dead_weekly_cost = dead_mile_cost / 4.33;
-    dsDeadCost.textContent = formatCurrency(dead_weekly_cost, 0) + '/wk';
-    document.getElementById('ds-dead-cost-monthly').textContent = formatCurrency(dead_mile_cost, 0) + '/mo';
-
-    // Callout
-    deadCallout.classList.add('visible');
-    deadCallout.textContent = `⚠️  Your dead miles are costing ~${formatCurrency(dead_mile_cost, 0)}/month in fuel and maintenance with zero revenue offset. That's ${formatCurrency(dead_mile_cost / miles, 3)} added to your effective cost per loaded mile.`;
-
-    // Target indicator
-    const overTarget = dead_pct > target_pct;
-    targetDot.className  = 'target-dot ' + (overTarget ? 'red' : 'green');
-    targetText.innerHTML = overTarget
-      ? `<strong style="color:#f87171;">${dead_pct.toFixed(1)}% dead</strong> — over your ${target_pct}% target`
-      : `<strong style="color:#4ade80;">${dead_pct.toFixed(1)}% dead</strong> — within your ${target_pct}% target`;
-
-  } else {
-    deadPctDisplay.value      = '—';
-    dsTotalMiles.textContent  = miles.toLocaleString('en-US');
-    document.getElementById('ds-dead-cost-monthly').textContent = '';
-    dsDeadCost.textContent    = '—';
-    deadCallout.classList.remove('visible');
-    targetDot.className  = 'target-dot';
-    targetText.innerHTML = 'Enter dead miles to see status';
-  }
-}
-
-document.querySelectorAll('input').forEach(el => el.addEventListener('input', calc));
-calc();
-</script>
+<script defer src="js/constants.js"></script>
+<script defer src="js/utils.js"></script>
+<script defer src="js/inputs.js"></script>
+<script defer src="js/calculations.js"></script>
+<script defer src="js/renderResults.js"></script>
+<script defer src="js/renderBreakdown.js"></script>
+<script defer src="js/renderDeadMiles.js"></script>
+<script defer src="js/main.js"></script>
 </body>
 </html>
