@@ -33,10 +33,11 @@
   .main { background: #1e293b; padding: 24px; border-radius: 0 0 16px 16px; }
 
   /* Results bar */   /* Second results row */
-  .results-bar, .results-bar-2 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin-bottom: 28px; }
+  .results-bar, .results-bar-2 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin-bottom: 28px; align-items: stretch; }
   .result-card {
     background: #0f172a; border-radius: 12px; padding: 16px;
     text-align: center; border: 1px solid #334155;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
   }
   .result-card.main-result {
     background: linear-gradient(135deg, #1d4ed8, #1e40af);
@@ -117,6 +118,44 @@
     letter-spacing: 0.07em; color: #475569; margin-top: 4px;
     padding-bottom: 4px; border-bottom: 1px solid #1e293b;
   }
+
+  /* Dead Miles section */
+  .section.dead-miles-section { border-color: #1d4ed8; }
+  .section.dead-miles-section .section-head { background: linear-gradient(135deg, #1e3a5f 0%, #1e3060 100%); border-bottom: 1px solid #1d4ed8; }
+
+  .dead-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 12px 14px 0; }
+  @media (max-width: 640px) { .dead-stats { grid-template-columns: 1fr 1fr; } }
+  .dead-stat {
+    background: #1e293b; border-radius: 10px; padding: 10px 12px;
+    border: 1px solid #334155;
+  }
+  .dead-stat .ds-label { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .dead-stat .ds-value { font-size: 18px; font-weight: 700; color: #f1f5f9; }
+  .dead-stat .ds-sub { font-size: 11px; color: #475569; margin-top: 2px; }
+
+  .dead-callout {
+    margin: 10px 14px 14px;
+    background: #2d1515; border: 1px solid #7f1d1d;
+    border-radius: 10px; padding: 10px 14px;
+    font-size: 13px; color: #fca5a5;
+    display: none;
+  }
+  .dead-callout.visible { display: block; }
+
+  /* Target indicator */
+  .target-indicator {
+    display: flex; align-items: center; gap: 8px;
+    background: #1e293b; border-radius: 8px;
+    padding: 6px 10px; margin-top: 6px;
+  }
+  .target-dot {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+    background: #334155; transition: background 0.3s;
+  }
+  .target-dot.green { background: #4ade80; box-shadow: 0 0 6px #4ade8066; }
+  .target-dot.red   { background: #f87171; box-shadow: 0 0 6px #f8717166; }
+  .target-text { font-size: 12px; color: #94a3b8; }
+  .target-text strong { color: #e2e8f0; }
 </style>
 </head>
 <body>
@@ -132,24 +171,36 @@
     <!-- Results Row 1 -->
     <div class="results-bar">
       <div class="result-card">
-        <div class="r-label">Monthly Revenue</div>
-        <div class="r-value" id="r-monthly-revenue">—</div>
-        <div class="r-sub">Total revenue</div>
-      </div> 
+        <div class="r-label">Weekly Revenue</div>
+        <div class="r-value" id="r-weekly-revenue">—</div>
+        <div class="r-sub" id="r-weekly-revenue-sub">Monthly: —</div>
+        <div style="margin-top:8px;padding-top:8px;border-top:1px solid #1e3a5f;width:100%;">
+          <div class="r-value" id="r-monthly-revenue" style="font-size:18px;">—</div>
+          <div class="r-sub">Total revenue</div>
+        </div>
+      </div>
       <div class="result-card">
-        <div class="r-label">Total Monthly Cost</div>
-        <div class="r-value" id="r-total">—</div>
-        <div class="r-sub">All expenses</div>
+        <div class="r-label">Weekly Cost</div>
+        <div class="r-value" id="r-weekly-cost">—</div>
+        <div class="r-sub" id="r-weekly-cost-sub">Monthly: —</div>
+        <div style="margin-top:8px;padding-top:8px;border-top:1px solid #1e3a5f;width:100%;">
+          <div class="r-value" id="r-total" style="font-size:18px;">—</div>
+          <div class="r-sub">All expenses</div>
+        </div>
       </div>
       <div class="result-card main-result">
-        <div class="r-label">Cost Per Mile (CPM)</div>
+        <div class="r-label">Break-even Rate</div>
         <div class="r-value" id="r-cpm">—</div>
-        <div class="r-sub">Break-even rate</div>
+        <div class="r-sub" id="r-cpm-sub">Cost per loaded mile (all expenses)</div>
       </div>
       <div class="result-card">
         <div class="r-label">Profit Per Mile (PPM)</div>
         <div class="r-value" id="r-ppm">—</div>
-        <div class="r-sub" id="r-ppm-sub">Enter revenue/mi</div>
+        <div class="r-sub" id="r-ppm-sub">w/ dead miles (true PPM)</div>
+        <div id="r-ppm-dead-wrap" style="display:none;margin-top:8px;padding-top:8px;border-top:1px solid #1e3a5f;width:100%;">
+          <div class="r-value" id="r-ppm-dead" style="font-size:18px;">—</div>
+          <div class="r-sub">Loaded miles only</div>
+        </div>
       </div>
     </div>
 
@@ -166,14 +217,18 @@
         <div class="r-sub">Monthly × 12 + annual fees</div>
       </div>
       <div class="result-card">
-        <div class="r-label">Monthly Fuel Cost</div>
-        <div class="r-value" id="r-fuel">—</div>
-        <div class="r-sub">Fuel + DEF</div>
+        <div class="r-label">Weekly Fuel Cost</div>
+        <div class="r-value" id="r-weekly-fuel">—</div>
+        <div class="r-sub" id="r-weekly-fuel-sub">Monthly: —</div>
       </div>
       <div class="result-card">
         <div class="r-label">Operating Profit</div>
         <div class="r-value" id="r-monthly-profit">—</div>
-        <div class="r-sub">Monthly net profit after all costs</div>
+        <div class="r-sub" id="r-monthly-profit-sub">Monthly net profit after all costs</div>
+        <div style="margin-top:8px;padding-top:8px;border-top:1px solid #1e3a5f;width:100%;">
+          <div class="r-value" id="r-weekly-profit" style="font-size:18px;">—</div>
+          <div class="r-sub">Weekly net profit</div>
+        </div>
       </div>
     </div>
 
@@ -198,6 +253,58 @@
             </div>
           </div>
         </div>
+      </div>
+
+      <!-- Dead Miles -->
+      <div class="section full-width dead-miles-section">
+        <div class="section-head"><span class="ico">🚫</span> Dead Miles / Empty Miles</div>
+        <div class="field-list" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px 20px;" class="col3">
+
+          <div class="field">
+            <label>Dead miles per month</label>
+            <div class="input-wrap">
+              <input type="number" id="dead_miles" value="0" min="0" class="no-prefix">
+            </div>
+          </div>
+
+          <div class="field">
+            <label>Target max dead mile %</label>
+            <div class="input-wrap">
+              <input type="number" id="dead_target_pct" value="10" min="0" max="100" step="1" class="no-prefix" style="padding-right:28px;">
+              <span class="suffix-label">%</span>
+            </div>
+            <div class="target-indicator" id="dead-target-indicator">
+              <div class="target-dot" id="dead-target-dot"></div>
+              <div class="target-text" id="dead-target-text">Enter dead miles to see status</div>
+            </div>
+          </div>
+
+          <div class="field">
+            <label style="color:#64748b;">Dead mile % of total</label>
+            <div class="input-wrap">
+              <input type="text" id="dead_pct_display" value="—" disabled class="no-prefix" style="color:#94a3b8;font-weight:600;background:#0f172a;cursor:default;">
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Computed stats row -->
+        <div class="dead-stats" style="grid-template-columns:1fr 1fr;">
+          <div class="dead-stat">
+            <div class="ds-label">Total Miles (loaded + dead)</div>
+            <div class="ds-value" id="ds-total-miles">—</div>
+            <div class="ds-sub">All miles driven</div>
+          </div>
+          <div class="dead-stat">
+            <div class="ds-label">Dead Mile Cost</div>
+            <div class="ds-value" id="ds-dead-cost" style="color:#f87171;">—</div>
+            <div class="ds-sub" id="ds-dead-cost-sub">Fuel + maintenance, zero revenue</div>
+            <div style="margin-top:6px;font-size:11px;color:#64748b;" id="ds-dead-cost-monthly"></div>
+          </div>
+        </div>
+
+        <div class="dead-callout" id="dead-callout"></div>
+
       </div>
 
       <!-- Monthly Fixed Costs -->
@@ -325,15 +432,15 @@
         <div class="section-head"><span class="ico">🔧</span> Maintenance & Tires</div>
         <div class="field-list">
           <div class="field">
-            <label>Oil & service ($/month)</label>
+            <label>Oil & service ($/month) / Industry average $0.015/mile</label>
             <div class="input-wrap"><span class="prefix">$</span><input type="number" id="oil" value="400" step="50"></div>
           </div>
           <div class="field">
-            <label>Tires reserve ($/month)</label>
+            <label>Tires reserve ($/month) / Industry average $0.047/mile</label>
             <div class="input-wrap"><span class="prefix">$</span><input type="number" id="tires" value="250" step="50"></div>
           </div>
           <div class="field">
-            <label>Repairs & misc reserve ($/month)</label>
+            <label>Repairs & misc reserve ($/month) / Industry average $0.2/mile</label>
             <div class="input-wrap"><span class="prefix">$</span><input type="number" id="repairs" value="700" step="50"></div>
           </div>
         </div>
@@ -426,90 +533,137 @@
 const BAR_COLORS = ['#3b82f6','#8b5cf6','#10b981','#f59e0b','#ef4444','#ec4899','#14b8a6'];
 const CATS = ['Fuel & DEF','Monthly Fixed Insurance','Equipment Payments','Annual Costs (÷12)','Maintenance & Tires','Carrier / MC / Factoring','Other Operating'];
 
-function n(id){ return parseFloat(document.getElementById(id).value) || 0; }
-// function fmt(v, digits=2){ return '$' + v.toLocaleString('en-US',{minimumFractionDigits:digits,maximumFractionDigits:digits}); }
-function fmt(v, digits=2){
+function getNumericInputValue(id){ return parseFloat(document.getElementById(id).value) || 0; }
+// function formatCurrency(v, digits=2){ return '$' + v.toLocaleString('en-US',{minimumFractionDigits:digits,maximumFractionDigits:digits}); }
+function formatCurrency(v, digits=2){
   return v >= 0 ? '$' + v.toLocaleString('en-US',{minimumFractionDigits:digits,maximumFractionDigits:digits}) : '-' + '$' + Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:digits,maximumFractionDigits:digits});
   // return '$' + v.toLocaleString('en-US',{minimumFractionDigits:digits,maximumFractionDigits:digits});
 }
 
 function calc(){
-  const miles = n('miles') || 1;
-  const rpm   = n('rpm');
+  const miles = getNumericInputValue('miles') || 1;
+  const rpm   = getNumericInputValue('rpm');
   const grossRevenue = rpm * miles;
 
+  const dead_miles   = getNumericInputValue('dead_miles');
+  const target_pct   = getNumericInputValue('dead_target_pct');
+  const total_miles  = miles + dead_miles;
+  
+  
   // Fuel
-  const fuel = (miles / (n('mpg') || 1)) * n('fuel_price') + n('def');
+  const mpg = getNumericInputValue('mpg') || 1;
+  const fuel_price = getNumericInputValue('fuel_price');
+  const fuel = (total_miles / mpg) * fuel_price + getNumericInputValue('def');
+
 
   // Monthly insurance (carrier-required + lender/law)
   const monthly_ins =
-    n('occ_accident') + n('bobtail') + n('ntl') + n('trailer_interchange') +
-    n('phys_damage') + n('cargo_ins') + n('primary_liability') + n('trailer_phys');
+    getNumericInputValue('occ_accident') + getNumericInputValue('bobtail') + getNumericInputValue('ntl') + getNumericInputValue('trailer_interchange') +
+    getNumericInputValue('phys_damage') + getNumericInputValue('cargo_ins') + getNumericInputValue('primary_liability') + getNumericInputValue('trailer_phys');
 
   // Equipment payments + regulatory + other fixed
   const equip_fixed =
-    n('truck_pay') + n('trailer_pay') + n('escrow') +
-    n('ifta_fee') + n('parking') + n('other_fixed');
+    getNumericInputValue('truck_pay') + getNumericInputValue('trailer_pay') + getNumericInputValue('escrow') +
+    getNumericInputValue('ifta_fee') + getNumericInputValue('parking') + getNumericInputValue('other_fixed');
 
   // Annual costs ÷ 12
   const annual_monthly =
-    (n('truck_reg') + n('ucr') + n('ifta_sticker') + n('dot_physical') + n('hvut') + n('other_annual')) / 12;
+    (getNumericInputValue('truck_reg') + getNumericInputValue('ucr') + getNumericInputValue('ifta_sticker') + getNumericInputValue('dot_physical') + getNumericInputValue('hvut') + getNumericInputValue('other_annual')) / 12;
 
   // Maintenance
-  const maint = n('oil') + n('tires') + n('repairs');
+  const maint = getNumericInputValue('oil') + getNumericInputValue('tires') + getNumericInputValue('repairs');
 
-  // Carrier / MC / Dispatch / Factoring (% of gross + flat fees)
-  // const carrier_cut   = grossRevenue * (n('carrier_pct') / 100);
-  // const dispatch_cut  = grossRevenue * (n('dispatch_pct') / 100);
-  // const factoring_cut = grossRevenue * (n('factoring_pct') / 100);
-  const carrier_total = grossRevenue * (n('carrier_pct') / 100);
-  const annual_gross_revenue = grossRevenue * 12
+  const carrier_total = grossRevenue * (getNumericInputValue('carrier_pct') / 100);
+  const annual_gross_revenue = grossRevenue * 12;
 
   // Other operating
-  const other_ops = n('tolls') + n('driver') + n('admin') + n('eld') + n('other_variable');
-
+  const other_ops = getNumericInputValue('tolls') + getNumericInputValue('driver') + getNumericInputValue('admin') + getNumericInputValue('eld') + getNumericInputValue('other_variable');
+  
   const total = fuel + monthly_ins + equip_fixed + annual_monthly + maint + carrier_total + other_ops;
   const cpm   = total / miles;
   const annualTotal = total * 12;
   const monthly_profit = grossRevenue - total;
-
+  const maintenance_cpm = maint / miles;
+  const dead_mile_cost = dead_miles > 0
+    ? (dead_miles / mpg) * fuel_price + dead_miles * maintenance_cpm
+    : 0;
+  const break_even_loaded_rate = cpm; // cpm = total / miles; total already includes dead-mile fuel via (total_miles / mpg)
 
   // Update top results
-  document.getElementById('r-monthly-revenue').textContent = fmt(grossRevenue, 0);
-  document.getElementById('r-total').textContent = fmt(total, 0);
-  document.getElementById('r-cpm').textContent   = fmt(cpm, 3);
+  const weekly = grossRevenue / 4.33;
+  const weeklyCost = total / 4.33;
+  const weeklyFuel = fuel / 4.33;
 
-  document.getElementById('r-annual-revenue').textContent = fmt(annual_gross_revenue, 0);
-  document.getElementById('r-annual').textContent = fmt(annualTotal, 0);
-  document.getElementById('r-fuel').textContent   = fmt(fuel, 0);
+  document.getElementById('r-weekly-revenue').textContent = formatCurrency(weekly, 0);
+  document.getElementById('r-weekly-revenue-sub').textContent = 'Monthly: ' + formatCurrency(grossRevenue, 0);
+  document.getElementById('r-monthly-revenue').textContent = formatCurrency(grossRevenue, 0);
+  document.getElementById('r-weekly-cost').textContent = formatCurrency(weeklyCost, 0);
+  document.getElementById('r-weekly-cost-sub').textContent = 'Monthly: ' + formatCurrency(total, 0);
+  document.getElementById('r-total').textContent = formatCurrency(total, 0);
+  document.getElementById('r-cpm').textContent = formatCurrency(break_even_loaded_rate, 3);
+  document.getElementById('r-cpm-sub').textContent = dead_miles > 0
+    ? 'Cost per loaded mile (incl. dead-mile overhead)'
+    : 'Cost per loaded mile (all expenses)';
+
+  document.getElementById('r-annual-revenue').textContent = formatCurrency(annual_gross_revenue, 0);
+  document.getElementById('r-annual').textContent = formatCurrency(annualTotal, 0);
+  document.getElementById('r-weekly-fuel').textContent = formatCurrency(weeklyFuel, 0);
+  document.getElementById('r-weekly-fuel-sub').textContent = 'Monthly: ' + formatCurrency(fuel, 0);
 
   // PPM
-  const ppmEl  = document.getElementById('r-ppm');
-  const ppmSub = document.getElementById('r-ppm-sub');
-  const totalPctFees = n('carrier_pct'); // + n('dispatch_pct') + n('factoring_pct');
-  // const netRpm = rpm * (1 - totalPctFees / 100);
+  const ppmEl      = document.getElementById('r-ppm');
+  const ppmSub     = document.getElementById('r-ppm-sub');
+  const ppmDeadWrap = document.getElementById('r-ppm-dead-wrap');
+  const ppmDeadEl  = document.getElementById('r-ppm-dead');
   const monthlyProfit = document.getElementById('r-monthly-profit');
+  const monthlyProfitSub = document.getElementById('r-monthly-profit-sub');
+  const weeklyProfit = document.getElementById('r-weekly-profit');
 
-  if(rpm > 0){
-    const ppm = rpm - cpm;
-    ppmEl.textContent = fmt(ppm, 3);
-    ppmEl.className = 'r-value ' + (ppm >= 0 ? 'profit-positive' : 'profit-negative');
-    ppmSub.textContent = totalPctFees > 0
-      ? `Net profit per mile after all costs`
-      : (ppm >= 0 ? 'you are profitable' : 'running at a loss');
+  if (rpm > 0) {
+    const loaded_ppm = rpm - cpm;
+    const true_profit = grossRevenue - total;
+    const true_ppm = true_profit / total_miles;
+
+    ppmEl.textContent = formatCurrency(true_ppm, 3);
+    ppmEl.className = 'r-value ' + (true_ppm >= 0 ? 'profit-positive' : 'profit-negative');
+    ppmSub.textContent = 'w/ dead miles (true PPM)';
+
+    if (dead_miles > 0) {
+      ppmDeadEl.textContent   = formatCurrency(loaded_ppm, 3);
+      ppmDeadEl.className     = 'r-value ' + (loaded_ppm >= 0 ? 'profit-positive' : 'profit-negative');
+      ppmDeadEl.style.fontSize = '18px';
+      ppmDeadEl.style.color    = '';
+      ppmDeadWrap.style.display = 'block';
+    } else {
+      ppmDeadWrap.style.display = 'none';
+    }
   } else {
     ppmEl.textContent = '—';
     ppmEl.className = 'r-value';
-    ppmSub.textContent = 'enter revenue/mi';
+    ppmSub.textContent = 'w/ dead miles (true PPM)';
+    ppmDeadWrap.style.display = 'none';
   }
 
-  if(monthly_profit >= 0) {
+  const true_monthly_profit = monthly_profit;
+  const true_weekly_profit = true_monthly_profit / 4.33;
+  if (true_monthly_profit >= 0) {
     monthlyProfit.className = 'r-value profit-positive';
-    monthlyProfit.textContent = fmt(monthly_profit, 0);
+    monthlyProfit.textContent = formatCurrency(true_monthly_profit, 0);
   } else {
     monthlyProfit.className = 'r-value profit-negative';
-    monthlyProfit.textContent = fmt(monthly_profit, 0);
+    monthlyProfit.textContent = formatCurrency(true_monthly_profit, 0);
   }
+  if (true_weekly_profit >= 0) {
+    weeklyProfit.className = 'r-value profit-positive';
+    weeklyProfit.textContent = formatCurrency(true_weekly_profit, 0);
+  } else {
+    weeklyProfit.className = 'r-value profit-negative';
+    weeklyProfit.textContent = formatCurrency(true_weekly_profit, 0);
+  }
+  weeklyProfit.style.fontSize = '18px';
+  monthlyProfitSub.textContent = dead_mile_cost > 0
+    ? `Dead-mile impact est. ${formatCurrency(dead_mile_cost, 0)}/mo`
+    : 'Monthly net profit after all costs';
 
   // Breakdown
   const amts = [fuel, monthly_ins, equip_fixed, annual_monthly, maint, carrier_total, other_ops];
@@ -524,10 +678,49 @@ function calc(){
           <div class="br-bar" style="width:${pct.toFixed(1)}%;background:${BAR_COLORS[i]}"></div>
         </div>
       </div>
-      <div class="br-cpm">${fmt(cpm_c, 3)}/mi</div>
+      <div class="br-cpm">${formatCurrency(cpm_c, 3)}/mi</div>
       <div class="br-pct">${pct.toFixed(1)}%</div>
     </div>`;
   }).join('');
+
+  // ── Dead Miles ──────────────────────────────────────────────────────────────
+
+  const deadPctDisplay  = document.getElementById('dead_pct_display');
+  const dsTotalMiles    = document.getElementById('ds-total-miles');
+  const dsDeadCost      = document.getElementById('ds-dead-cost');
+  const deadCallout     = document.getElementById('dead-callout');
+  const targetDot       = document.getElementById('dead-target-dot');
+  const targetText      = document.getElementById('dead-target-text');
+
+  if (dead_miles > 0) {
+    const dead_pct    = (dead_miles / total_miles) * 100;
+
+    deadPctDisplay.value = dead_pct.toFixed(1) + '%';
+    dsTotalMiles.textContent  = total_miles.toLocaleString('en-US');
+    const dead_weekly_cost = dead_mile_cost / 4.33;
+    dsDeadCost.textContent = formatCurrency(dead_weekly_cost, 0) + '/wk';
+    document.getElementById('ds-dead-cost-monthly').textContent = formatCurrency(dead_mile_cost, 0) + '/mo';
+
+    // Callout
+    deadCallout.classList.add('visible');
+    deadCallout.textContent = `⚠️  Your dead miles are costing ~${formatCurrency(dead_mile_cost, 0)}/month in fuel and maintenance with zero revenue offset. That's ${formatCurrency(dead_mile_cost / miles, 3)} added to your effective cost per loaded mile.`;
+
+    // Target indicator
+    const overTarget = dead_pct > target_pct;
+    targetDot.className  = 'target-dot ' + (overTarget ? 'red' : 'green');
+    targetText.innerHTML = overTarget
+      ? `<strong style="color:#f87171;">${dead_pct.toFixed(1)}% dead</strong> — over your ${target_pct}% target`
+      : `<strong style="color:#4ade80;">${dead_pct.toFixed(1)}% dead</strong> — within your ${target_pct}% target`;
+
+  } else {
+    deadPctDisplay.value      = '—';
+    dsTotalMiles.textContent  = miles.toLocaleString('en-US');
+    document.getElementById('ds-dead-cost-monthly').textContent = '';
+    dsDeadCost.textContent    = '—';
+    deadCallout.classList.remove('visible');
+    targetDot.className  = 'target-dot';
+    targetText.innerHTML = 'Enter dead miles to see status';
+  }
 }
 
 document.querySelectorAll('input').forEach(el => el.addEventListener('input', calc));
