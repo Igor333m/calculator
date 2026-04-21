@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/x-icon" href="images/favicon.ico">
 <title>Owner Operator Cost Calculator</title>
 <link rel="stylesheet" href="style.css">
 </head>
@@ -44,7 +45,7 @@
       <div class="result-card">
         <div class="r-label">Profit Per Mile (PPM)</div>
         <div class="r-value" id="r-ppm">—</div>
-        <div class="r-sub" id="r-ppm-sub">w/ dead miles (true PPM)</div>
+        <div class="r-sub" id="r-ppm-sub">w/ deadhead miles (true PPM)</div>
         <div id="r-ppm-dead-wrap" class="result-divider result-hidden">
           <div class="r-value r-value-sm" id="r-ppm-dead">—</div>
           <div class="r-sub">Loaded miles only</div>
@@ -103,20 +104,20 @@
         </div>
       </div>
 
-      <!-- Dead Miles -->
+      <!-- Deadhead Miles -->
       <div class="section full-width dead-miles-section">
-        <div class="section-head"><span class="ico">🚫</span> Dead Miles / Empty Miles</div>
+        <div class="section-head"><span class="ico">🚫</span> Deadhead Miles / Empty Miles</div>
         <div class="field-list col3 field-list-grid-3">
 
           <div class="field">
-            <label>Dead miles per month</label>
+            <label>Deadhead miles per month</label>
             <div class="input-wrap">
               <input type="number" id="dead_miles" value="0" min="0" class="no-prefix">
             </div>
           </div>
 
           <div class="field">
-            <label>Target max dead mile %</label>
+            <label>Target max deadhead mile %</label>
             <div class="input-wrap">
               <input type="number" id="dead_target_pct" value="10" min="0" max="100" step="1" class="no-prefix input-with-suffix">
               <span class="suffix-label">%</span>
@@ -124,10 +125,10 @@
           </div>
 
           <div class="field">
-            <label class="label-muted">Dead mile % of total</label>
+            <label class="label-muted">Deadhead mile % of total</label>
             <div class="target-indicator target-indicator-field" id="dead-target-indicator">
               <div class="target-dot" id="dead-target-dot"></div>
-              <div class="target-text" id="dead-target-text">Enter dead miles to see status</div>
+              <div class="target-text" id="dead-target-text">Enter deadhead miles to see status</div>
             </div>
           </div>
 
@@ -136,12 +137,12 @@
         <!-- Computed stats row -->
   <div class="dead-stats dead-stats-two-col">
           <div class="dead-stat">
-            <div class="ds-label">Total Miles (loaded + dead)</div>
+            <div class="ds-label">Total Miles (loaded + deadhead)</div>
             <div class="ds-value" id="ds-total-miles">—</div>
             <div class="ds-sub">All miles driven</div>
           </div>
           <div class="dead-stat">
-            <div class="ds-label">Dead Mile Cost</div>
+            <div class="ds-label">Deadhead Mile Cost</div>
             <div class="ds-value ds-value-danger" id="ds-dead-cost">—</div>
             <div class="ds-sub" id="ds-dead-cost-sub">Fuel + maintenance, zero revenue</div>
             <div class="dead-cost-monthly" id="ds-dead-cost-monthly"></div>
