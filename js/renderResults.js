@@ -8,7 +8,8 @@ function renderResults(result) {
   const annualRevenue = document.getElementById('r-annual-revenue');
   const annualTotal = document.getElementById('r-annual');
   const weeklyFuel = document.getElementById('r-weekly-fuel');
-  const weeklyFuelSub = document.getElementById('r-weekly-fuel-sub');
+  const monthlyFuel = document.getElementById('r-monthly-fuel');
+  const fuelCostPerMile = document.getElementById('r-fuel-cost-per-mile');
 
   const ppmEl = document.getElementById('r-ppm');
   const ppmSub = document.getElementById('r-ppm-sub');
@@ -30,7 +31,8 @@ function renderResults(result) {
   annualRevenue.textContent = formatCurrency(result.annualGrossRevenue, 0);
   annualTotal.textContent = formatCurrency(result.annualTotal, 0);
   weeklyFuel.textContent = formatCurrency(result.weeklyFuel, 0);
-  weeklyFuelSub.textContent = 'Monthly: ' + formatCurrency(result.fuel, 0);
+  monthlyFuel.textContent = formatCurrency(result.fuel, 0);
+  fuelCostPerMile.textContent = 'Fuel cost per mile: ' + formatCurrency(result.fuelCostPerMile, 3) + '/mi';
 
   if (result.rpm > 0) {
     ppmEl.textContent = formatCurrency(result.truePpm, 3);

@@ -56,7 +56,9 @@ function calculate(inputs) {
     driverPay +
     otherOps;
 
-  const cpm = total / miles;
+  const fixedExclCarrier = total - carrierTotal;
+  const cpm = fixedExclCarrier / (miles * (1 - inputs.carrier_pct / 100));
+  // const cpm = total / miles;
   const annualTotal = total * 12;
   const annualGrossRevenue = grossRevenue * 12;
   const monthlyProfit = grossRevenue - total;
@@ -70,9 +72,11 @@ function calculate(inputs) {
   const weeklyCost = total / 4.33;
   const weeklyFuel = fuel / 4.33;
   const weeklyProfit = monthlyProfit / 4.33;
+  const rawTotalMiles = (inputs.miles || 0) + deadMiles;
+  const fuelCostPerMile = rawTotalMiles > 0 ? fuel / rawTotalMiles : 0;
 
-  const loadedPpm = rpm > 0 ? rpm - cpm : null;
-  const truePpm = rpm > 0 ? monthlyProfit / totalMiles : null;
+  const loadedPpm = miles > 0 ? monthlyProfit / miles : null;
+  const truePpm = totalMiles > 0 ? monthlyProfit / totalMiles : null;
   const deadPct = deadMiles > 0 ? (deadMiles / totalMiles) * 100 : 0;
 
   return {
@@ -99,6 +103,7 @@ function calculate(inputs) {
     weeklyCost,
     weeklyFuel,
     weeklyProfit,
+    fuelCostPerMile,
     deadMileCost,
     loadedPpm,
     truePpm,
