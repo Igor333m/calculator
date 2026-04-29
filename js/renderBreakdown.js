@@ -4,6 +4,7 @@ function renderBreakdown(result) {
     .map((amount, index) => {
       const pct = result.total > 0 ? (amount / result.total) * 100 : 0;
       const cpm = amount / result.miles;
+      const weekly = amount / MONTHLY_TO_WEEKLY;
 
       return `<div class="breakdown-row">
       <div class="br-label">${CATS[index]}</div>
@@ -13,6 +14,8 @@ function renderBreakdown(result) {
         </div>
       </div>
       <div class="br-cpm">${formatCurrency(cpm, 3)}/mi</div>
+      <div class="br-weekly">${formatCurrency(weekly, 2)}/wk</div>
+      <div class="br-monthly">${formatCurrency(amount, 2)}/mo</div>
       <div class="br-pct">${pct.toFixed(1)}%</div>
     </div>`;
     })

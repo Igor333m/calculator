@@ -65,6 +65,7 @@
     .input-grid { grid-template-columns: 1fr; }
     .results-bar, .results-bar-2 { grid-template-columns: 1fr; }
     .col3 { grid-template-columns: 1fr 1fr !important; }
+    .br-weekly, .br-monthly { display: none; }
   }
   @media (max-width: 500px) {
     .field-list[style*="grid-template-columns"],
@@ -146,6 +147,9 @@
   .br-bar-bg { height: 6px; background: var(--main-background); border-radius: 3px; }
   .br-bar { height: 6px; border-radius: 3px; transition: width 0.4s ease; }
   .br-cpm { font-size: 13px; font-weight: 700; color: #e2e8f0; min-width: 68px; text-align: right; }
+  .br-weekly, .br-monthly { font-size: 12px; color: var(--text-gray); text-align: right; white-space: nowrap; }
+  .br-weekly { min-width: 78px; }
+  .br-monthly { min-width: 96px; }
   .br-pct { font-size: 11px; color: #475569; min-width: 38px; text-align: right; }
 
   .footer-note { text-align: center; font-size: 11px; color: #475569; margin-top: 16px; padding-bottom: 4px; }

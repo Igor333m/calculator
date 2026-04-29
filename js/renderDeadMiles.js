@@ -9,7 +9,7 @@ function renderDeadMiles(result) {
   if (result.deadMiles > 0) {
     dsTotalMiles.textContent = result.totalMiles.toLocaleString('en-US');
 
-    const deadWeeklyCost = result.deadMileCost / 4.33;
+    const deadWeeklyCost = result.deadMileCost / MONTHLY_TO_WEEKLY;
     dsDeadCost.textContent = formatCurrency(deadWeeklyCost, 0) + '/wk';
     dsDeadCostMonthly.textContent = formatCurrency(result.deadMileCost, 0) + '/mo';
 
