@@ -63,9 +63,8 @@ function calculate(inputs) {
   const annualGrossRevenue = grossRevenue * 12;
   const monthlyProfit = grossRevenue - total;
 
-  const maintenanceCpm = maintenance / miles; // TODO: Industry average maintenance cost per mile could be used here instead of actual maintenance spend to show true dead mile cost even if user doesn't input maintenance costs
   const deadMileCost = deadMiles > 0
-    ? (deadMiles / mpg) * fuelPrice + deadMiles * maintenanceCpm
+    ? (deadMiles / mpg) * fuelPrice + deadMiles * INDUSTRY_AVG_MAINTENANCE_CPM
     : 0;
 
   const weeklyRevenue = grossRevenue / MONTHLY_TO_WEEKLY;

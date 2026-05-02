@@ -116,7 +116,7 @@
           <div class="field" title="Empty miles driven with no load — bobtail or repositioning runs">
             <label>Deadhead miles per month</label>
             <div class="input-wrap">
-              <input type="number" id="dead_miles" value="0" min="0" class="no-prefix">
+              <input type="number" id="dead_miles" value="100" min="0" class="no-prefix">
             </div>
           </div>
 
@@ -139,16 +139,16 @@
         </div>
 
         <!-- Computed stats row -->
-  <div class="dead-stats dead-stats-two-col">
+        <div class="dead-stats dead-stats-two-col">
           <div class="dead-stat">
             <div class="ds-label">Total Miles (loaded + deadhead)</div>
             <div class="ds-value" id="ds-total-miles">—</div>
             <div class="ds-sub">All miles driven</div>
           </div>
           <div class="dead-stat">
-            <div class="ds-label">Deadhead Mile Cost</div>
+            <div class="ds-label" title="Maintenance set to $0.2/mile">Deadhead Mile Cost</div>
             <div class="ds-value ds-value-danger" id="ds-dead-cost">—</div>
-            <div class="ds-sub" id="ds-dead-cost-sub">Fuel + maintenance, zero revenue</div>
+            <div class="ds-sub" id="ds-dead-cost-sub">Fuel + maintenance ($0.2/mile), zero revenue</div>
             <div class="dead-cost-monthly" id="ds-dead-cost-monthly"></div>
           </div>
         </div>
@@ -279,19 +279,19 @@
 
       <!-- Maintenance & Tires -->
       <div class="section">
-        <div class="section-head"><span class="ico">🔧</span> Maintenance & Tires</div>
+        <div class="section-head" title="Maintenance & Reserve / Industry standard $0.10 - $0.30/mile"><span class="ico">🔧</span> Maintenance / Tires / Reserve (~$0.10 - $0.30/mile)</div>
         <div class="field-list">
           <div class="field" title="Monthly cost for oil changes and routine maintenance.">
             <label>Oil & service ($/month) / Industry average $0.015/mile</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="oil" value="400" step="50"></div>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="oil" value="230" step="50"></div>
           </div>
           <div class="field" title="Monthly reserve for tire replacements.">
             <label>Tires reserve ($/month) / Industry average $0.047/mile</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="tires" value="250" step="50"></div>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="tires" value="450" step="50"></div>
           </div>
           <div class="field" title="Monthly reserve for repairs and miscellaneous expenses.">
             <label>Repairs & misc reserve ($/month) / Industry average $0.2/mile</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="repairs" value="700" step="50"></div>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="repairs" value="1400" step="50"></div>
           </div>
         </div>
       </div>

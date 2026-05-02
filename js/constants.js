@@ -11,3 +11,4 @@ const CATS = [
   'Additional Operating Costs'
 ];
 const MONTHLY_TO_WEEKLY = 4.33;
+const INDUSTRY_AVG_MAINTENANCE_CPM = 0.20;
