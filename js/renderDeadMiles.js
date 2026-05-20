@@ -25,19 +25,21 @@ function renderDeadMiles(result) {
     targetDot.className = 'target-dot ' + (overTarget ? 'red' : 'green');
 
     if (overTarget) {
-      targetText.innerHTML =
-        '<strong style="color:#f87171;">' +
-        result.deadPct.toFixed(1) +
-        '% dead</strong> - over your ' +
-        result.targetPct +
-        '% target';
+      const strong = document.createElement('strong');
+      strong.style.color = 'var(--profit-negative)';
+      strong.textContent = result.deadPct.toFixed(1) + '% dead';
+
+      targetText.innerHTML = '';
+      targetText.appendChild(strong);
+      targetText.append(' - over your ' + result.targetPct + '% target');
     } else {
-      targetText.innerHTML =
-        '<strong style="color:#4ade80;">' +
-        result.deadPct.toFixed(1) +
-        '% dead</strong> - within your ' +
-        result.targetPct +
-        '% target';
+      const strong = document.createElement('strong');
+      strong.style.color = 'var(--profit-positive)';
+      strong.textContent = result.deadPct.toFixed(1) + '% dead';
+
+      targetText.innerHTML = '';
+      targetText.appendChild(strong);
+      targetText.append(' - within your ' + result.targetPct + '% target');
     }
 
     return;
@@ -48,5 +50,5 @@ function renderDeadMiles(result) {
   dsDeadCost.textContent = '—';
   deadCallout.classList.remove('visible');
   targetDot.className = 'target-dot';
-  targetText.innerHTML = 'Enter dead miles to see status';
+  targetText.textContent = 'Enter dead miles to see status';
 }
