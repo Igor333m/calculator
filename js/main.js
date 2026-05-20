@@ -11,4 +11,4 @@ document.querySelectorAll('input').forEach((element) => {
   element.addEventListener('input', runCalculator);
 });
 
-runCalculator();
+requestAnimationFrame(runCalculator);
