@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
+<link rel="icon" type="image/x-icon" href="images/favicon.ico">
+<title>Company Driver Pay Calculator</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-calculator="company">
+<div class="app">
+  <div class="header">
+    <span class="truck-icon">🚛</span>
+    <h1>Company Driver Pay Calculator</h1>
+    <p>Monthly mileage pay before taxes and withholding</p>
+  </div>
+
+  <div class="main">
+    <div id="validation-errors" class="validation-errors" role="alert" hidden></div>
+
+
+
+    <section id="company-panel" aria-label="Company Driver Calculator">
+      <p class="section-note">Enter one mileage total for the month and your agreed pay rate. Gross pay is before taxes and withholding.</p>
+      <div class="results-bar">
+        <div class="result-card main-result"><div class="r-label">Monthly gross pay</div><div class="r-value" id="company-monthly-pay">—</div><div class="r-sub">Monthly business miles × pay rate</div></div>
+        <div class="result-card"><div class="r-label">Gross pay per business mile</div><div class="r-value" id="company-pay-per-mile">—</div><div class="r-sub">Gross pay ÷ all business miles</div></div>
+        <div class="result-card"><div class="r-label">Weekly gross estimate</div><div class="r-value" id="company-weekly-pay">—</div><div class="r-sub">Same monthly plan, averaged over 52 weeks/year</div></div>
+        <div class="result-card"><div class="r-label">Annualized gross pay</div><div class="r-value" id="company-annual-pay">—</div><div class="r-sub">Monthly gross pay × 12</div></div>
+      </div>
+      <div class="section">
+        <div class="section-head">Company-driver Mileage Pay</div>
+        <div class="field-list field-list-grid-2">
+          <div class="field">
+            <label>Total business miles per month</label>
+            <div class="input-wrap"><input type="number" id="company_miles" value="10000" min="0" required class="no-prefix"></div>
+          </div>
+          <div class="field">
+            <label>Pay rate ($/business mile)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="company_rate" value="0.60" min="0" step="0.01" required></div>
+            <p class="input-help">Enter 0.60 for 60 cents per mile.</p>
+          </div>
+          <p class="input-help field-full">The entered miles are paid at the entered rate. The same rate applies whether the truck is loaded or empty.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer-note">Blue values are editable. Results update as you type.</div>
+
+  </div><!-- end main -->
+</div><!-- end app -->
+
+<script defer src="js/constants.js"></script>
+<script defer src="js/utils.js"></script>
+<script defer src="js/inputs.js"></script>
+<script defer src="js/calculations.js"></script>
+<script defer src="js/renderResults.js"></script>
+<script defer src="js/renderBreakdown.js"></script>
+<script defer src="js/renderDeadMiles.js"></script>
+<script defer src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
+<link rel="icon" type="image/x-icon" href="images/favicon.ico">
+<title>Owner-Operator Cost Calculator</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body data-calculator="owner">
+<div class="app">
+  <div class="header">
+    <span class="truck-icon">🚛</span>
+    <h1>Owner-Operator Cost Calculator</h1>
+    <p>Monthly cash planning across every business mile, including deadhead</p>
+  </div>
+
+  <div class="main">
+    <div id="validation-errors" class="validation-errors" role="alert" hidden></div>
+
+    <section id="owner-panel" aria-label="Owner-Operator Calculator">
+    <p class="section-note">Enter your monthly budget. All rates use loaded + deadhead miles. Example inputs are editable; weekly and annual values project the same monthly budget.</p>
+    <div class="results-bar">
+      <div class="result-card">
+        <div class="r-label">Revenue per total mile</div>
+        <div class="r-value" id="r-revenue-per-mile">—</div>
+        <div class="r-sub">Gross freight revenue ÷ all business miles</div>
+      </div>
+      <div class="result-card">
+        <div class="r-label">Business cost per total mile</div>
+        <div class="r-value" id="r-cost-per-mile">—</div>
+        <div class="r-sub">Operating costs, reserves, and carrier fee</div>
+      </div>
+      <div class="result-card">
+        <div class="r-label">Business break-even rate</div>
+        <div class="r-value" id="r-break-even">—</div>
+        <div class="r-sub">Required gross per total mile, before escrow and owner draw</div>
+      </div>
+      <div class="result-card main-result">
+        <div class="r-label">Owner-draw target rate</div>
+        <div class="r-value" id="r-owner-target-rate">—</div>
+        <div class="r-sub">Required gross per total mile, including this month's escrow and draw</div>
+      </div>
+    </div>
+
+    <div class="results-bar-2">
+      <div class="result-card">
+        <div class="r-label">Monthly gross revenue</div>
+        <div class="r-value" id="r-monthly-revenue">—</div>
+        <div class="result-divider">
+          <div class="r-sub">Weekly estimate</div>
+          <div class="r-value r-value-sm" id="r-weekly-revenue">—</div>
+          <div class="r-sub">Annualized revenue</div>
+          <div class="r-value r-value-sm" id="r-annual-revenue">—</div>
+        </div>
+      </div>
+      <div class="result-card">
+        <div class="r-label">Monthly business budget</div>
+        <div class="r-value" id="r-total">—</div>
+        <div class="result-divider">
+          <div class="r-sub">Weekly estimate</div>
+          <div class="r-value r-value-sm" id="r-weekly-cost">—</div>
+          <div class="r-sub">Annualized budget, annual fees included once</div>
+          <div class="r-value r-value-sm" id="r-annual">—</div>
+        </div>
+      </div>
+      <div class="result-card">
+        <div class="r-label">Monthly cash before owner draw</div>
+        <div class="r-value" id="r-cash-before-draw">—</div>
+        <div class="r-sub">After costs, reserves, and net escrow; before income taxes</div>
+        <div class="result-divider">
+          <div class="r-sub">Weekly estimate</div>
+          <div class="r-value r-value-sm" id="r-weekly-cash-before">—</div>
+          <div class="r-sub">Cash available per total business mile</div>
+          <div class="r-value r-value-sm" id="r-cash-per-mile">—</div>
+        </div>
+      </div>
+      <div class="result-card">
+        <div class="r-label">Monthly cash after owner draw</div>
+        <div class="r-value" id="r-cash-after-draw">—</div>
+        <div class="r-sub">Before income taxes; negative means a funding shortfall</div>
+        <div class="result-divider">
+          <div class="r-sub">Weekly estimate</div>
+          <div class="r-value r-value-sm" id="r-weekly-cash-after">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Inputs -->
+    <div class="input-grid">
+
+      <!-- Miles & Revenue -->
+      <div class="section full-width">
+        <div class="section-head"><span class="ico">📍</span> Miles & Revenue</div>
+        <div class="field-list field-list-grid-2">
+          <div class="field" title="Loaded miles only — do not include deadhead/empty miles here">
+            <label>Loaded miles per month</label>
+            <div class="input-wrap">
+              <input type="number" id="miles" value="10000" min="0" required class="no-prefix">
+            </div>
+          </div>
+          <div class="field" title="Full monthly freight payments before deductions. Include fuel surcharge, detention, and other earnings in this total once.">
+            <label>Total gross freight revenue ($/month)</label>
+            <div class="input-wrap">
+              <span class="prefix">$</span>
+              <input type="number" id="revenue" value="24500" min="0" step="100" required>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Deadhead Miles -->
+      <div class="section full-width dead-miles-section">
+        <div class="section-head"><span class="ico">🚫</span> Deadhead Miles / Empty Miles</div>
+        <div class="field-list col3 field-list-grid-3">
+
+          <div class="field" title="Empty miles driven with no load — bobtail or repositioning runs">
+            <label>Deadhead miles per month</label>
+            <div class="input-wrap">
+              <input type="number" id="dead_miles" value="100" min="0" class="no-prefix">
+            </div>
+          </div>
+
+          <div class="field" title="Your target or maximum acceptable percentage of deadhead miles compared to total miles driven.">
+            <label>Target max deadhead mile %</label>
+            <div class="input-wrap">
+              <input type="number" id="dead_target_pct" value="10" min="0" max="100" step="1" class="no-prefix input-with-suffix">
+              <span class="suffix-label">%</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label class="label-muted">Deadhead mile % of total</label>
+            <div class="target-indicator target-indicator-field" id="dead-target-indicator">
+              <div class="target-dot" id="dead-target-dot"></div>
+              <div class="target-text" id="dead-target-text">Enter deadhead miles to see status</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Computed stats row -->
+        <div class="dead-stats dead-stats-two-col">
+          <div class="dead-stat">
+            <div class="ds-label">Total Miles (loaded + deadhead)</div>
+            <div class="ds-value" id="ds-total-miles">—</div>
+            <div class="ds-sub">All business miles; personal travel excluded</div>
+          </div>
+          <div class="dead-stat">
+            <div class="ds-label">Monthly deadhead running cost</div>
+            <div class="ds-value ds-value-danger" id="ds-dead-cost">—</div>
+            <div class="ds-sub">Fuel + DEF + your maintenance reserves, already in the budget</div>
+            <div class="dead-cost-monthly" id="ds-dead-cost-weekly">—</div>
+          </div>
+        </div>
+
+        <div class="dead-callout" id="dead-callout"></div>
+
+      </div>
+
+      <!-- Monthly Fixed Costs -->
+      <div class="section full-width">
+        <div class="section-head"><span class="ico">📋</span> Monthly Fixed Costs</div>
+        <div class="field-list col3 field-list-grid-3">
+          <div class="field field-full"><div class="sub-section-label">Equipment Payments</div></div>
+          <div class="field" title="Monthly truck loan or lease payment">
+            <label>Truck payment</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="truck_pay" value="3000" step="50"></div>
+          </div>
+          <div class="field" title="Monthly trailer loan or lease payment. Enter 0 if you drop-and-hook">
+            <label>Trailer payment</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="trailer_pay" value="1000" step="50"></div>
+          </div>
+
+          <div class="field field-full"><div class="sub-section-label">Insurance (Required by Carrier)</div></div>
+          <div class="field" title="Enter your monthly occupational accident insurance premium.">
+            <label>Occupational accident insurance</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="occ_accident" value="160" step="10"></div>
+          </div>
+          <div class="field" title="Covers your truck when driving without a trailer">
+            <label>Bobtail insurance</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="bobtail" value="45" step="10"></div>
+          </div>
+          <div class="field" title="Non-trucking liability insurance covers your legal liability when operating your truck for non-business purposes.">
+            <label>NTL – Non-trucking liability</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="ntl" value="45" step="10"></div>
+          </div>
+          <div class="field" title="Required if you pull trailers you do not own">
+            <label>Trailer interchange insurance</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="trailer_interchange" value="35" step="10"></div>
+          </div>
+
+          <div class="field field-full"><div class="sub-section-label">Insurance (Required by Lender / Law)</div></div>
+          <div class="field" title="Covers damage to your truck from collisions, fire, theft, and other perils. Required by lenders.">
+            <label>Physical damage insurance (truck)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="phys_damage" value="300" step="10"></div>
+          </div>
+          <div class="field" title="Covers damage to your cargo while in transit. Required by lenders.">
+            <label>Cargo insurance</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="cargo_ins" value="300" step="10"></div>
+          </div>
+          <div class="field" title="Covers your legal liability for bodily injury and property damage to others. Required by FMCSA.">
+            <label>Primary liability insurance (FMCSA)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="primary_liability" value="1000" step="10"></div>
+          </div>
+          <div class="field" title="Covers damage to your trailer. Required by lenders.">
+            <label>Trailer physical damage insurance</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="trailer_phys" value="50" step="10"></div>
+          </div>
+
+          <div class="field field-full"><div class="sub-section-label">Regulatory & Filing Fees / Parking / Other</div></div>
+          <div class="field" title="Monthly cost for IFTA quarterly fuel tax filing if you use a service or accountant to file. If you file yourself and have minimal expenses, you can enter $0 here.">
+            <label>IFTA quarterly filing labor/service fees</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="ifta_fee" value="20" step="1"></div>
+          </div>
+          <div class="field" title="Monthly cost for parking your truck.">
+            <label>Parking ($/month)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="parking" value="100" step="10"></div>
+          </div>
+          <div class="field" title="Other fixed monthly expenses not covered by the categories above.">
+            <label>Other fixed ($/month)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="other_fixed" value="100" step="50"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Annual / Recurring Costs -->
+      <div class="section full-width">
+        <div class="section-head"><span class="ico">📅</span> Annual / Recurring Costs <span class="section-head-note">&nbsp;(divided by 12 for monthly CPM)</span></div>
+        <div class="field-list col3 field-list-grid-3">
+          <div class="field" title="Annual cost for truck registration and license plates. Varies by state, weight class, and truck type.">
+            <label>Truck registration / plates</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="truck_reg" value="2300" step="50"></div>
+          </div>
+          <div class="field" title="Annual Unified Carrier Registration (UCR) fee. Required for interstate carriers.">
+            <label>UCR registration</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="ucr" value="69" step="1"></div>
+          </div>
+          <div class="field" title="Annual cost for IFTA sticker and filing.">
+            <label>IFTA sticker / filing (annual)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="ifta_sticker" value="25" step="10"></div>
+          </div>
+          <div class="field" title="Annual cost for DOT physical exam.">
+            <label>DOT physical exam</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="dot_physical" value="120" step="10"></div>
+          </div>
+          <div class="field" title="Annual Heavy Vehicle Use Tax (HVUT) 2290. Required for vehicles over 55,000 lbs.">
+            <label>HVUT 2290</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="hvut" value="550" step="10"></div>
+          </div>
+          <div class="field" title="Other annual fees not covered by the categories above.">
+            <label>Other annual fees</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="other_annual" value="150" step="50"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Fuel -->
+      <div class="section">
+        <div class="section-head"><span class="ico">⛽</span> Fuel</div>
+        <div class="field-list">
+          <div class="field" title="Current fuel price per gallon.">
+            <label>Fuel price ($/gallon)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="fuel_price" value="5.64" step="0.01" required></div>
+          </div>
+          <div class="field" title="Truck fuel efficiency in miles per gallon.">
+            <label>Truck MPG</label>
+            <div class="input-wrap"><input type="number" id="mpg" value="6.5" min="0.1" step="0.1" required class="no-prefix"></div>
+          </div>
+          <div class="field" title="Monthly cost for Diesel Exhaust Fluid (DEF).">
+            <label>DEF cost ($/month)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="def" value="120"></div>
+          </div>
+          <div class="inline-summary">
+            <span>Monthly fuel + DEF <strong id="r-monthly-fuel">—</strong></span>
+            <span>Weekly estimate <strong id="r-weekly-fuel">—</strong></span>
+            <span>Per total business mile <strong id="r-fuel-cost-per-mile">—</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Maintenance & Tires -->
+      <div class="section">
+        <div class="section-head"><span class="ico">🔧</span> Maintenance & Tire Reserves</div>
+        <div class="field-list">
+          <p class="input-help">Your reserve rates apply to every business mile, loaded or empty. Sample rates are illustrative.</p>
+          <div class="field">
+            <label>Oil & service reserve ($/business mile)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="oil_rate" value="0.023" step="0.001"></div>
+            <div class="input-help">Monthly budget: <span id="reserve-oil-monthly">—</span></div>
+          </div>
+          <div class="field">
+            <label>Tire reserve ($/business mile)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="tires_rate" value="0.045" step="0.001"></div>
+            <div class="input-help">Monthly budget: <span id="reserve-tires-monthly">—</span></div>
+          </div>
+          <div class="field">
+            <label>Repair reserve ($/business mile)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="repairs_rate" value="0.140" step="0.001"></div>
+            <div class="input-help">Monthly budget: <span id="reserve-repairs-monthly">—</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Carrier / MC / Dispatch -->
+      <div class="section full-width">
+        <div class="section-head"><span class="ico">🏢</span> Carrier Fee</div>
+        <div class="field-list">
+          <div class="field" title="Percentage of gross revenue taken by the carrier as a fee for their services. Check your lease agreement for this number.">
+            <label>Carrier fee (% of total gross revenue)</label>
+            <div class="input-wrap">
+              <input type="number" id="carrier_pct" value="12" min="0" max="99.999" step="0.5" class="no-prefix input-with-suffix">
+              <span class="suffix-label">%</span>
+            </div>
+            <p class="input-help">This percentage applies to the full revenue entered above. Use a percentage of that total, not a contract rate charged on a different revenue base.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cost Per Mile Additions -->
+      <div class="section full-width">
+        <div class="section-head"><span class="ico">➕</span> Additional Operating Costs</div>
+        <div class="field-list col3 field-list-grid-3">
+          <div class="field" title="Tolls, scales, and other per-mile costs that vary based on your routes.">
+            <label>Tolls & scales ($/month)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="tolls" value="250" step="10"></div>
+          </div>
+          <div class="field" title="Actual wage expense if you hire a driver. Enter your own draw separately below.">
+            <label>Hired-driver wages ($/month)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="driver" value="0" step="100"></div>
+          </div>
+          <div class="field" title="Monthly cost for administrative and bookkeeping services.">
+            <label>Admin & bookkeeping ($/month)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="admin" value="200" step="50"></div>
+          </div>
+          <div class="field" title="Monthly cost for ELD, GPS, and other technology services.">
+            <label>ELD / GPS / tech ($/month)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="eld" value="45" step="5"></div>
+          </div>
+          <div class="field" title="Other variable monthly costs not covered by the categories above.">
+            <label>Other variable ($/month)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="other_variable" value="100" step="50"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section full-width">
+        <div class="section-head"><span class="ico">💵</span> Owner Draw & Refundable Escrow</div>
+        <div class="field-list col3 field-list-grid-3">
+          <div class="field">
+            <label>Owner-draw target ($/month)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="owner_draw" value="0" step="100"></div>
+            <p class="input-help">Your planned personal withdrawal, separate from business costs.</p>
+          </div>
+          <div class="field">
+            <label>Refundable escrow contributions ($/month)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="escrow" value="150" step="10"></div>
+          </div>
+          <div class="field">
+            <label>Escrow released or used ($/month)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="escrow_released" value="0" step="10"></div>
+            <p class="input-help">Include refunds and escrow used for charges already listed in your expenses.</p>
+          </div>
+          <p class="input-help field-full">Net escrow contribution: <strong id="r-net-escrow">—</strong>. Contributions reduce available cash; releases increase it. Escrow is separate from revenue and operating costs.</p>
+        </div>
+      </div>
+
+    </div><!-- end input-grid -->
+
+    <!-- Breakdown -->
+    <div class="breakdown">
+      <div class="breakdown-head">Business Budget per Total Business Mile</div>
+      <div id="breakdown-rows"></div>
+    </div>
+
+    <p class="footer-note">The business budget includes maintenance reserves and carrier fees. Owner draw, refundable escrow, and income taxes are separate. Annual fees are included once.</p>
+    </section>
+
+
+
+    <div class="footer-note">Blue values are editable. Results update as you type.</div>
+
+  </div><!-- end main -->
+</div><!-- end app -->
+
+<script defer src="js/constants.js"></script>
+<script defer src="js/utils.js"></script>
+<script defer src="js/inputs.js"></script>
+<script defer src="js/calculations.js"></script>
+<script defer src="js/renderResults.js"></script>
+<script defer src="js/renderBreakdown.js"></script>
+<script defer src="js/renderDeadMiles.js"></script>
+<script defer src="js/main.js"></script>
+</body>
+</html>
