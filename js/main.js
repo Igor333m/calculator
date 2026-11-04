@@ -40,7 +40,7 @@ function runCalculator() {
     renderCompanyDriver(displayResult);
   } else {
     renderResults(displayResult);
-    renderBreakdown(displayResult);
+    renderBreakdown(displayResult, inputs);
     renderDeadMiles(displayResult);
   }
 }

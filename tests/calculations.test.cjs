@@ -180,6 +180,35 @@ test('owner draw and refundable escrow stay outside business costs and freight r
   assert.equal(released.ownerTargetRate, 0);
 });
 
+test('positive hired-driver wages and owner draw cannot be used together', () => {
+  const result = context.calculate({ ...scenario, driver: 300, owner_draw: 300 });
+  assert.equal(result.valid, false);
+  assert.match(result.errors.owner_draw, /either hired-driver wages or an owner-draw target/i);
+});
+
+test('hired-driver wages alone are valid and included in business costs', () => {
+  const baseline = context.calculate({ ...scenario, driver: 0, owner_draw: 0 });
+  const wages = context.calculate({ ...scenario, driver: 300, owner_draw: 0 });
+  assert.equal(baseline.valid, true);
+  assert.equal(wages.valid, true);
+  assert.equal(wages.driverPay, 300);
+  close(wages.total - baseline.total, 300);
+  close(wages.costPerMile - baseline.costPerMile, 1);
+  close(baseline.cashBeforeDraw - wages.cashBeforeDraw, 300);
+  assert.ok(wages.breakEvenRate > baseline.breakEvenRate);
+});
+
+test('owner draw alone is valid and remains outside business costs', () => {
+  const baseline = context.calculate({ ...scenario, driver: 0, owner_draw: 0 });
+  const draw = context.calculate({ ...scenario, driver: 0, owner_draw: 300 });
+  assert.equal(baseline.valid, true);
+  assert.equal(draw.valid, true);
+  assert.equal(draw.ownerDraw, 300);
+  close(draw.total, baseline.total);
+  close(draw.costPerMile, baseline.costPerMile);
+  close(baseline.cashAfterDraw - draw.cashAfterDraw, 300);
+});
+
 test('zero mileage keeps monetary costs but has no per-mile or percentage result', () => {
   const result = context.calculate({ ...scenario, miles: 0, dead_miles: 0 });
   assert.equal(result.valid, true);
