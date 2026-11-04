@@ -55,7 +55,7 @@ Cash available before owner draw and income taxes divided by total business mile
 The gross revenue per total business mile required to cover operating cash costs, revenue-based fees, and planned maintenance reserves, before escrow movements and owner draw.
 
 **Owner-draw target rate**:
-The gross revenue per total business mile required to cover the business cost budget, net escrow contributions, and the planned owner draw for the reporting period.
+The gross freight revenue per loaded mile required to cover the business cost budget for loaded and deadhead miles, net escrow contributions, and the planned owner draw for the reporting period.
 
 **Company-driver gross pay**:
 Compensation a company driver earns before taxes and withholding, distinct from the truck's freight revenue and operating costs.
