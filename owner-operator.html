@@ -22,15 +22,15 @@
     <div id="validation-errors" class="validation-errors" role="alert" hidden></div>
 
     <section id="owner-panel" aria-label="Owner-Operator Calculator">
-    <p class="section-note">Enter your monthly budget. All rates use loaded + deadhead miles. Example inputs are editable; weekly and annual values project the same monthly budget.</p>
+    <p class="section-note">Enter your monthly budget. The owner-draw target is per loaded mile; other per-mile results use loaded + deadhead miles. Example inputs are editable; weekly and annual values project the same monthly budget.</p>
     <div class="results-bar">
       <div class="result-card">
-        <div class="r-label">Revenue per total mile</div>
+        <div class="r-label">Revenue per total mile (RPM)</div>
         <div class="r-value" id="r-revenue-per-mile">—</div>
         <div class="r-sub">Gross freight revenue ÷ all business miles</div>
       </div>
       <div class="result-card">
-        <div class="r-label">Business cost per total mile</div>
+        <div class="r-label">Business cost per total mile (CPM)</div>
         <div class="r-value" id="r-cost-per-mile">—</div>
         <div class="r-sub">Operating costs, reserves, and carrier fee</div>
       </div>
@@ -42,7 +42,7 @@
       <div class="result-card main-result">
         <div class="r-label">Owner-draw target rate</div>
         <div class="r-value" id="r-owner-target-rate">—</div>
-        <div class="r-sub">Required gross per total mile, including this month's escrow and draw</div>
+        <div class="r-sub">Per loaded mile; covers loaded + deadhead costs</div>
       </div>
     </div>
 
@@ -106,8 +106,9 @@
             <label>Total gross freight revenue ($/month)</label>
             <div class="input-wrap">
               <span class="prefix">$</span>
-              <input type="number" id="revenue" value="24500" min="0" step="100" required>
+              <input type="number" id="revenue" value="24500" min="0" step="0.01" required>
             </div>
+            <p class="input-help">To fund your owner draw, multiply the owner-draw target rate by loaded miles for your monthly gross revenue target.</p>
           </div>
         </div>
       </div>
@@ -158,6 +159,7 @@
         </div>
 
         <div class="dead-callout" id="dead-callout"></div>
+        <p class="input-help dead-target-note">The loaded-mile target includes fuel and reserves for deadhead miles. With loaded miles unchanged, extra deadhead costs raise the target.</p>
 
       </div>
 
@@ -350,6 +352,7 @@
       <div class="section full-width">
         <div class="section-head"><span class="ico">💵</span> Owner Draw & Refundable Escrow</div>
         <div class="field-list col3 field-list-grid-3">
+          <div id="driver-draw-warning" class="field-full input-conflict-warning" role="alert" hidden></div>
           <div class="field">
             <label>Owner-draw target ($/month)</label>
             <div class="input-wrap"><span class="prefix">$</span><input type="number" id="owner_draw" value="0" step="100"></div>
@@ -372,11 +375,13 @@
 
     <!-- Breakdown -->
     <div class="breakdown">
-      <div class="breakdown-head">Business Budget per Total Business Mile</div>
+      <div class="breakdown-head">Monthly Business Cost Breakdown</div>
+      <div class="breakdown-hint">Click or tap a row to see itemized costs. Use Enter or Space with a keyboard.</div>
+      <div class="breakdown-column-label">Share of costs + owner draw (%)</div>
       <div id="breakdown-rows"></div>
     </div>
 
-    <p class="footer-note">The business budget includes maintenance reserves and carrier fees. Owner draw, refundable escrow, and income taxes are separate. Annual fees are included once.</p>
+    <p class="footer-note">Monthly business costs include maintenance reserves and carrier fees. Owner draw is included in the breakdown share percentages, but remains outside business costs, CPM, and break-even calculations. Refundable escrow and income taxes are separate. Annual fees are included once.</p>
     </section>
 
 

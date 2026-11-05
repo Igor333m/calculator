@@ -1,12 +1,14 @@
 function renderResults(result) {
   const values = {
     'r-revenue-per-mile': 'revenuePerMile', 'r-cost-per-mile': 'costPerMile',
-    'r-break-even': 'breakEvenRate', 'r-owner-target-rate': 'ownerTargetRate',
+    'r-break-even': 'breakEvenRate',
     'r-cash-per-mile': 'cashPerMile'
   };
   for (const [id, key] of Object.entries(values)) {
     setAmount(id, result?.[key], 3, key === 'cashPerMile');
   }
+  // A displayed minimum must still cover the draw when used as entered.
+  setAmount('r-owner-target-rate', roundUpTarget(result?.ownerTargetRate, 3), 3);
   const amounts = {
     'r-monthly-revenue': 'grossRevenue', 'r-weekly-revenue': 'weeklyRevenue',
     'r-annual-revenue': 'annualGrossRevenue', 'r-total': 'total',

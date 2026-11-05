@@ -37,7 +37,7 @@ test('the agreed all-mile cash budget reconciles, including deadhead exactly onc
   close(result.cashAfterDraw, 100);
   close(result.cashPerMile, 4 / 3);
   close(result.breakEvenRate, 5 / 3);
-  close(result.ownerTargetRate, 80 / 27);
+  close(result.ownerTargetRate, 40 / 9);
 });
 
 test('the target revenue funds costs, percentage fees, escrow, and owner draw', () => {
@@ -45,6 +45,117 @@ test('the target revenue funds costs, percentage fees, escrow, and owner draw', 
   close(result.cashAfterDraw, 0);
   const businessOnly = context.calculate({ ...scenario, revenue: 500 });
   close(businessOnly.grossRevenue - businessOnly.total, 0);
+});
+
+function renderOwnerResults(inputs) {
+  const elements = new Map();
+  const displayContext = vm.createContext({
+    document: {
+      getElementById(id) {
+        if (!elements.has(id)) {
+          const classes = new Set();
+          elements.set(id, {
+            textContent: '',
+            classList: {
+              toggle(name, enabled) { enabled ? classes.add(name) : classes.delete(name); },
+              contains(name) { return classes.has(name); }
+            }
+          });
+        }
+        return elements.get(id);
+      }
+    }
+  });
+  for (const file of ['constants.js', 'calculations.js', 'utils.js', 'renderResults.js']) {
+    vm.runInContext(readFileSync(path.join(root, 'js', file), 'utf8'), displayContext);
+  }
+  const result = displayContext.calculate(inputs);
+  displayContext.renderResults(result.valid ? result : null);
+  return { result, elements };
+}
+
+const displayedAmount = (elements, id) => {
+  const text = elements.get(id)?.textContent;
+  assert.ok(text && text !== '—', `${id} should show an amount`);
+  return Number(text.replace(/[$,]/g, ''));
+};
+
+test('the displayed owner-draw target rate funds all business miles from loaded-mile revenue', () => {
+  for (const inputs of [
+    { ...base, miles: 2, dead_miles: 1, mpg: 1, revenue: 1, owner_draw: 1 },
+    { ...scenario, dead_miles: 50 },
+    { ...scenario, miles: 10000, dead_miles: 1000, other_fixed: 15000, owner_draw: 6000 }
+  ]) {
+    const { result, elements } = renderOwnerResults(inputs);
+    const displayedRate = displayedAmount(elements, 'r-owner-target-rate');
+    const funded = context.calculate({ ...inputs, revenue: displayedRate * inputs.miles });
+    assert.ok(funded.cashAfterDraw >= -1e-8, `Displayed rate leaves a shortfall of ${funded.cashAfterDraw}`);
+    assert.ok(displayedRate - result.ownerTargetRate < 0.001 + 1e-8);
+  }
+});
+
+test('the monthly gross target funds the draw including periods with zero loaded miles', () => {
+  for (const inputs of [
+    scenario,
+    { ...scenario, dead_miles: 50 },
+    { ...scenario, carrier_pct: 25, escrow: 125, escrow_released: 20 },
+    { ...scenario, miles: 0, dead_miles: 0 },
+    { ...scenario, miles: 0 },
+    { ...scenario, escrow_released: 10000 },
+    { ...base, miles: 100, mpg: 10, other_fixed: 0.1, owner_draw: 0.2, escrow: 1 }
+  ]) {
+    const result = context.calculate(inputs);
+    const revenue = result.ownerTargetRevenue;
+    const funded = context.calculate({ ...inputs, revenue });
+    assert.ok(funded.cashAfterDraw >= -1e-8, `Monthly target leaves a shortfall of ${funded.cashAfterDraw}`);
+    const fundedDisplay = renderOwnerResults({ ...inputs, revenue }).elements;
+    assert.doesNotMatch(fundedDisplay.get('r-cash-after-draw').textContent, /^-/);
+    assert.equal(fundedDisplay.get('r-cash-after-draw').classList.contains('profit-negative'), false);
+  }
+  const invalid = renderOwnerResults({ ...scenario, mpg: 0 });
+  assert.equal(invalid.elements.get('r-owner-target-rate').textContent, '—');
+  const shortfall = renderOwnerResults({ ...scenario, revenue: 8000 / 9 - 1 }).elements;
+  assert.equal(shortfall.get('r-cash-after-draw').textContent, '-$0.90');
+  assert.equal(shortfall.get('r-cash-after-draw').classList.contains('profit-negative'), true);
+});
+
+test('more deadhead raises the loaded-mile target and covers the required monthly gross', () => {
+  const before = context.calculate(scenario);
+  const inputs = { ...scenario, dead_miles: 200 };
+  const after = context.calculate(inputs);
+  assert.ok(after.ownerTargetRate > before.ownerTargetRate);
+  assert.ok(after.ownerTargetRevenue > before.ownerTargetRevenue);
+  close(after.ownerTargetRate * inputs.miles, after.ownerTargetRevenue);
+  close(context.calculate({ ...inputs, revenue: after.ownerTargetRevenue }).cashAfterDraw, 0);
+  close(context.calculate({ ...inputs, revenue: after.ownerTargetRate * inputs.miles }).cashAfterDraw, 0);
+});
+
+test('a $6,000 owner draw is funded at the displayed loaded-mile target as deadhead grows', () => {
+  const html = readFileSync(path.join(root, 'owner-operator.html'), 'utf8');
+  const defaults = Object.fromEntries([...html.matchAll(/<input\b[^>]*>/g)].map(([tag]) => [
+    tag.match(/\bid="([^"]+)"/)[1], Number(tag.match(/\bvalue="([^"]+)"/)[1])
+  ]));
+  let previousTarget = 0;
+  for (const dead_miles of [0, 100, 1000, 2000]) {
+    const inputs = { ...defaults, dead_miles, owner_draw: 6000, driver: 0 };
+    const { result, elements } = renderOwnerResults(inputs);
+    assert.equal(result.valid, true);
+    const rate = displayedAmount(elements, 'r-owner-target-rate');
+    assert.ok(rate > previousTarget);
+    previousTarget = rate;
+    close(result.ownerTargetRate * inputs.miles, result.ownerTargetRevenue);
+    const funded = context.calculate({ ...inputs, revenue: rate * inputs.miles });
+    assert.ok(funded.cashBeforeDraw >= 6000 - 1e-8);
+    assert.ok(funded.cashAfterDraw >= -1e-8);
+  }
+});
+
+test('deadhead with no added running costs keeps the loaded-mile target unchanged', () => {
+  const inputs = { ...base, miles: 100, mpg: 10, other_fixed: 100, owner_draw: 6000 };
+  const before = context.calculate(inputs);
+  const after = context.calculate({ ...inputs, dead_miles: 100 });
+  assert.equal(after.ownerTargetRevenue, before.ownerTargetRevenue);
+  assert.equal(after.ownerTargetRate, before.ownerTargetRate);
 });
 
 test('extra empty miles increase running costs and reserves without adding revenue', () => {
@@ -69,6 +180,35 @@ test('owner draw and refundable escrow stay outside business costs and freight r
   assert.equal(released.ownerTargetRate, 0);
 });
 
+test('positive hired-driver wages and owner draw cannot be used together', () => {
+  const result = context.calculate({ ...scenario, driver: 300, owner_draw: 300 });
+  assert.equal(result.valid, false);
+  assert.match(result.errors.owner_draw, /either hired-driver wages or an owner-draw target/i);
+});
+
+test('hired-driver wages alone are valid and included in business costs', () => {
+  const baseline = context.calculate({ ...scenario, driver: 0, owner_draw: 0 });
+  const wages = context.calculate({ ...scenario, driver: 300, owner_draw: 0 });
+  assert.equal(baseline.valid, true);
+  assert.equal(wages.valid, true);
+  assert.equal(wages.driverPay, 300);
+  close(wages.total - baseline.total, 300);
+  close(wages.costPerMile - baseline.costPerMile, 1);
+  close(baseline.cashBeforeDraw - wages.cashBeforeDraw, 300);
+  assert.ok(wages.breakEvenRate > baseline.breakEvenRate);
+});
+
+test('owner draw alone is valid and remains outside business costs', () => {
+  const baseline = context.calculate({ ...scenario, driver: 0, owner_draw: 0 });
+  const draw = context.calculate({ ...scenario, driver: 0, owner_draw: 300 });
+  assert.equal(baseline.valid, true);
+  assert.equal(draw.valid, true);
+  assert.equal(draw.ownerDraw, 300);
+  close(draw.total, baseline.total);
+  close(draw.costPerMile, baseline.costPerMile);
+  close(baseline.cashAfterDraw - draw.cashAfterDraw, 300);
+});
+
 test('zero mileage keeps monetary costs but has no per-mile or percentage result', () => {
   const result = context.calculate({ ...scenario, miles: 0, dead_miles: 0 });
   assert.equal(result.valid, true);
@@ -91,6 +231,10 @@ test('all-empty business mileage is valid and does not manufacture a loaded mile
   assert.equal(result.revenuePerMile, 10);
   assert.equal(result.deadPct, 100);
   close(result.deadMileCost, result.fuel + result.maintenance);
+  assert.equal(result.ownerTargetRate, null);
+  assert.ok(result.ownerTargetRevenue > 0);
+  const { elements } = renderOwnerResults({ ...scenario, miles: 0 });
+  assert.equal(elements.get('r-owner-target-rate').textContent, '—');
 });
 
 test('annual fees are counted once and weekly projections agree with annual totals', () => {

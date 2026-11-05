@@ -16,6 +16,9 @@ function validateInputs(inputs, fields) {
   if ('dead_target_pct' in fields && Number.isFinite(inputs.dead_target_pct) && inputs.dead_target_pct > 100) {
     errors.dead_target_pct = 'Deadhead target must be between 0% and 100%.';
   }
+  if ('driver' in fields && 'owner_draw' in fields && inputs.driver > 0 && inputs.owner_draw > 0) {
+    errors.owner_draw = 'Choose either hired-driver wages or an owner-draw target, not both.';
+  }
   return errors;
 }
 
@@ -69,11 +72,12 @@ function calculate(inputs) {
     miles, deadMiles, totalMiles, targetPct: inputs.dead_target_pct,
     grossRevenue, fuel, monthlyInsurance, equipmentFixed, annualMonthly,
     oilReserve, tiresReserve, repairsReserve, maintenance, maintenanceRate,
-    driverPay, otherOps, baseCost, carrierTotal, total, netEscrow,
+    driverPay, otherOps, ownerDraw: inputs.owner_draw, baseCost, carrierTotal, total, netEscrow,
     cashBeforeDraw, cashAfterDraw, breakEvenRevenue, ownerTargetRevenue,
     revenuePerMile: perMile(grossRevenue), costPerMile: perMile(total),
     cashPerMile: perMile(cashBeforeDraw), breakEvenRate: perMile(breakEvenRevenue),
-    ownerTargetRate: perMile(ownerTargetRevenue), fuelCostPerMile,
+    // Loaded-mile revenue must fund the full budget, including deadhead costs.
+    ownerTargetRate: miles > 0 ? ownerTargetRevenue / miles : null, fuelCostPerMile,
     deadMileCost, deadPct: totalMiles > 0 ? deadMiles / totalMiles * 100 : null,
     weeklyRevenue: grossRevenue / MONTHLY_TO_WEEKLY,
     weeklyCost: total / MONTHLY_TO_WEEKLY,
@@ -82,7 +86,7 @@ function calculate(inputs) {
     weeklyCashAfterDraw: cashAfterDraw / MONTHLY_TO_WEEKLY,
     annualGrossRevenue: grossRevenue * 12,
     annualTotal: total * 12,
-    breakdown: [driverPay, fuel, monthlyInsurance, equipmentFixed, annualMonthly,
+    breakdown: [fuel, monthlyInsurance, equipmentFixed, annualMonthly,
       maintenance, carrierTotal, otherOps]
   });
 }
