@@ -50,6 +50,12 @@ let breakdownPopoverCleanups = [];
 
 function renderBreakdown(result, inputs) {
   const rows = document.getElementById('breakdown-rows');
+  const shareLabel = document.getElementById('breakdown-share-label');
+  if (shareLabel) {
+    shareLabel.textContent = inputs.driver > 0
+      ? 'Share of costs + Hired-driver wages (%)'
+      : 'Share of costs + owner draw (%)';
+  }
   const openIndex = document.querySelector('.breakdown-popover:popover-open')?.dataset.index;
   breakdownPopoverCleanups.forEach((cleanup) => cleanup());
   breakdownPopoverCleanups = [];

@@ -1,7 +1,6 @@
 function renderResults(result) {
   const values = {
     'r-revenue-per-mile': 'revenuePerMile', 'r-cost-per-mile': 'costPerMile',
-    'r-break-even': 'breakEvenRate',
     'r-cash-per-mile': 'cashPerMile'
   };
   for (const [id, key] of Object.entries(values)) {
