@@ -28,7 +28,7 @@
   }
   .header h1 { font-size: 26px; font-weight: 700; color: #fff; letter-spacing: -0.5px; margin-bottom: 6px; }
   .header p { font-size: 13px; color: var(--text-gray); }
-  .truck-icon { font-size: 32px; margin-bottom: 8px; display: block; }
+  .brand-logo { display: block; width: 150px; max-width: 45vw; height: auto; margin: 0 auto 8px; }
 
   /* Main */
   .main { background: var(--main-background); padding: 24px; border-radius: 0 0 16px 16px; }
@@ -177,6 +177,8 @@
   .br-pct { font-size: 11px; color: #475569; min-width: 38px; text-align: right; }
 
   .footer-note { text-align: center; font-size: 11px; color: #475569; margin-top: 16px; padding-bottom: 4px; }
+  .site-footer { margin: 20px auto 0; padding: 12px 16px 20px; border-top: 1px solid #334155; color: var(--text-gray); font-size: 12px; line-height: 1.6; text-align: center; }
+  .site-footer p + p { margin-top: 4px; }
 
   /* Section divider label */
   .sub-section-label {
@@ -238,6 +240,7 @@
   .input-help { color: var(--text-gray); font-size: 12px; line-height: 1.5; }
   .field { min-width: 0; }
   .results-bar, .results-bar-2 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .owner-results-bar { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .result-card .r-value { overflow-wrap: anywhere; line-height: 1.2; }
   .result-card .r-sub { line-height: 1.5; margin-top: 6px; }
   .result-divider .r-value-sm { margin-top: 3px; }
@@ -251,6 +254,9 @@
   .footer-note { line-height: 1.6; color: var(--text-gray); }
   @media (max-width: 760px) {
     .results-bar, .results-bar-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 640px) {
+    .owner-results-bar { grid-template-columns: 1fr; }
   }
   @media (max-width: 500px) {
     body { padding: 10px; }

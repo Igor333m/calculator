@@ -13,7 +13,7 @@
 <body data-calculator="owner">
 <div class="app">
   <div class="header">
-    <span class="truck-icon">🚛</span>
+    <img class="brand-logo" src="images/northforge-freight-logo.svg" alt="NorthForge Freight logo">
     <h1>Owner-Operator Cost Calculator</h1>
     <p>Monthly cash planning across every business mile, including deadhead</p>
   </div>
@@ -23,7 +23,7 @@
 
     <section id="owner-panel" aria-label="Owner-Operator Calculator">
     <p class="section-note">Enter your monthly budget. The owner-draw target is per loaded mile; other per-mile results use loaded + deadhead miles. Example inputs are editable; weekly and annual values project the same monthly budget.</p>
-    <div class="results-bar">
+    <div class="results-bar owner-results-bar">
       <div class="result-card">
         <div class="r-label">Revenue per total mile (RPM)</div>
         <div class="r-value" id="r-revenue-per-mile">—</div>
@@ -34,13 +34,8 @@
         <div class="r-value" id="r-cost-per-mile">—</div>
         <div class="r-sub">Operating costs, reserves, and carrier fee</div>
       </div>
-      <div class="result-card">
-        <div class="r-label">Business break-even rate</div>
-        <div class="r-value" id="r-break-even">—</div>
-        <div class="r-sub">Required gross per total mile, before escrow and owner draw</div>
-      </div>
       <div class="result-card main-result">
-        <div class="r-label">Owner-draw target rate</div>
+        <div class="r-label">Owner-draw target rate (Target RPM)</div>
         <div class="r-value" id="r-owner-target-rate">—</div>
         <div class="r-sub">Per loaded mile; covers loaded + deadhead costs</div>
       </div>
@@ -121,7 +116,7 @@
           <div class="field" title="Empty miles driven with no load — bobtail or repositioning runs">
             <label>Deadhead miles per month</label>
             <div class="input-wrap">
-              <input type="number" id="dead_miles" value="100" min="0" class="no-prefix">
+              <input type="number" id="dead_miles" value="1000" min="0" class="no-prefix">
             </div>
           </div>
 
@@ -377,7 +372,7 @@
     <div class="breakdown">
       <div class="breakdown-head">Monthly Business Cost Breakdown</div>
       <div class="breakdown-hint">Click or tap a row to see itemized costs. Use Enter or Space with a keyboard.</div>
-      <div class="breakdown-column-label">Share of costs + owner draw (%)</div>
+      <div id="breakdown-share-label" class="breakdown-column-label">Share of costs + owner draw (%)</div>
       <div id="breakdown-rows"></div>
     </div>
 
@@ -389,6 +384,10 @@
     <div class="footer-note">Blue values are editable. Results update as you type.</div>
 
   </div><!-- end main -->
+  <footer class="site-footer">
+    <p>© 2026 NorthForge Freight. All rights reserved.</p>
+    <p>Calculator results are estimates based on the information entered and are for planning purposes only. Actual costs and compensation may vary.</p>
+  </footer>
 </div><!-- end app -->
 
 <script defer src="js/constants.js"></script>
