@@ -30,11 +30,11 @@
   .header p { font-size: 13px; color: var(--text-gray); }
   .brand-logo { display: block; width: 150px; max-width: 45vw; height: auto; margin: 0 auto 8px; }
 
-  /* Keep calculator titles and the brand together, with the logo on the right. */
+  /* Keep the calculator logo and title together, with the logo on the left. */
   .calculator-header-content {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     gap: clamp(16px, 4vw, 40px);
     max-width: 100%;
   }
