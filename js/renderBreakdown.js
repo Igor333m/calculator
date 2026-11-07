@@ -52,8 +52,8 @@ function renderBreakdown(result, inputs) {
   const rows = document.getElementById('breakdown-rows');
   const shareLabel = document.getElementById('breakdown-share-label');
   if (shareLabel) {
-    shareLabel.textContent = inputs.driver > 0
-      ? 'Share of costs + Hired-driver wages (%)'
+    shareLabel.textContent = inputs.driver_rate > 0
+      ? 'Share of business costs (%)'
       : 'Share of costs + owner draw (%)';
   }
   const openIndex = document.querySelector('.breakdown-popover:popover-open')?.dataset.index;
@@ -64,6 +64,8 @@ function renderBreakdown(result, inputs) {
 
   const ownerDraw = result.ownerDraw || 0;
   const driverPay = result.driverPay || 0;
+  const driverMiles = result.totalMiles.toLocaleString('en-US', { maximumFractionDigits: 10 });
+  const driverRate = '$' + inputs.driver_rate.toLocaleString('en-US', { maximumFractionDigits: 10 });
   const usesOwnerDraw = ownerDraw > 0;
   const usesDriverPay = !usesOwnerDraw && driverPay > 0;
   const primaryAmount = usesOwnerDraw ? ownerDraw : driverPay;
@@ -75,7 +77,7 @@ function renderBreakdown(result, inputs) {
   const primaryDetails = usesOwnerDraw
     ? [{ label: 'Owner-draw target', amount: ownerDraw }]
     : usesDriverPay
-      ? [{ label: 'Hired-driver wages', amount: driverPay }]
+      ? [{ label: 'Hired-driver wages', amount: driverPay, note: `${driverRate}/business mile × ${driverMiles} business miles` }]
       : [{ label: 'Owner-draw target', amount: 0 }, { label: 'Hired-driver wages', amount: 0 }];
 
   function addRow(label, amount, color, details, index, primary = false) {
@@ -125,7 +127,7 @@ function renderBreakdown(result, inputs) {
           <tfoot><tr><th scope="row">Total</th>${cells(amount)}</tr></tfoot>
         </table>
       </div>
-      <p class="breakdown-popover-note">Percentages are shares of business costs plus owner draw. Weekly estimates use 52 weeks per year. Totals are calculated before rounding.</p>
+      <p class="breakdown-popover-note">Percentages are shares of ${usesDriverPay ? 'business costs' : 'business costs plus owner draw'}. Weekly estimates use 52 weeks per year. Totals are calculated before rounding.</p>
     `;
 
     function positionPanel() {

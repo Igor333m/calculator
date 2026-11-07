@@ -80,7 +80,7 @@ const displayedAmount = (elements, id) => {
   return Number(text.replace(/[$,]/g, ''));
 };
 
-test('the displayed owner-draw target rate funds all business miles from loaded-mile revenue', () => {
+test('the displayed target rate funds all business miles from loaded-mile revenue', () => {
   for (const inputs of [
     { ...base, miles: 2, dead_miles: 1, mpg: 1, revenue: 1, owner_draw: 1 },
     { ...scenario, dead_miles: 50 },
@@ -137,7 +137,7 @@ test('a $6,000 owner draw is funded at the displayed loaded-mile target as deadh
   ]));
   let previousTarget = 0;
   for (const dead_miles of [0, 100, 1000, 2000]) {
-    const inputs = { ...defaults, dead_miles, owner_draw: 6000, driver: 0 };
+    const inputs = { ...defaults, dead_miles, owner_draw: 6000, driver_rate: 0 };
     const { result, elements } = renderOwnerResults(inputs);
     assert.equal(result.valid, true);
     const rate = displayedAmount(elements, 'r-owner-target-rate');
@@ -180,27 +180,31 @@ test('owner draw and refundable escrow stay outside business costs and freight r
   assert.equal(released.ownerTargetRate, 0);
 });
 
-test('positive hired-driver wages and owner draw cannot be used together', () => {
-  const result = context.calculate({ ...scenario, driver: 300, owner_draw: 300 });
+test('positive hired-driver rate and owner draw cannot be used together', () => {
+  const result = context.calculate({ ...scenario, driver_rate: 0.60, owner_draw: 300 });
   assert.equal(result.valid, false);
-  assert.match(result.errors.owner_draw, /either hired-driver wages or an owner-draw target/i);
+  assert.match(result.errors.owner_draw, /either a hired-driver rate or an owner-draw target/i);
 });
 
-test('hired-driver wages alone are valid and included in business costs', () => {
-  const baseline = context.calculate({ ...scenario, driver: 0, owner_draw: 0 });
-  const wages = context.calculate({ ...scenario, driver: 300, owner_draw: 0 });
+test('a hired-driver rate pays for loaded and deadhead miles and enters monthly costs', () => {
+  const baseline = context.calculate({ ...scenario, driver_rate: 0, owner_draw: 0 });
+  const wages = context.calculate({ ...scenario, driver_rate: 0.60, owner_draw: 0 });
   assert.equal(baseline.valid, true);
   assert.equal(wages.valid, true);
-  assert.equal(wages.driverPay, 300);
-  close(wages.total - baseline.total, 300);
-  close(wages.costPerMile - baseline.costPerMile, 1);
-  close(baseline.cashBeforeDraw - wages.cashBeforeDraw, 300);
+  assert.equal(wages.driverPay, 180);
+  close(wages.total - baseline.total, 180);
+  close(wages.costPerMile - baseline.costPerMile, 0.60);
+  close(baseline.cashBeforeDraw - wages.cashBeforeDraw, 180);
   assert.ok(wages.breakEvenRate > baseline.breakEvenRate);
+  const moreDeadhead = context.calculate({ ...scenario, dead_miles: 200, driver_rate: 0.60, owner_draw: 0 });
+  close(moreDeadhead.driverPay - wages.driverPay, 60);
+  const noMiles = context.calculate({ ...scenario, miles: 0, dead_miles: 0, driver_rate: 0.60, owner_draw: 0 });
+  assert.equal(noMiles.driverPay, 0);
 });
 
 test('owner draw alone is valid and remains outside business costs', () => {
-  const baseline = context.calculate({ ...scenario, driver: 0, owner_draw: 0 });
-  const draw = context.calculate({ ...scenario, driver: 0, owner_draw: 300 });
+  const baseline = context.calculate({ ...scenario, driver_rate: 0, owner_draw: 0 });
+  const draw = context.calculate({ ...scenario, driver_rate: 0, owner_draw: 300 });
   assert.equal(baseline.valid, true);
   assert.equal(draw.valid, true);
   assert.equal(draw.ownerDraw, 300);

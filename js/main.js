@@ -2,9 +2,9 @@ const calculatorType = document.body.dataset.calculator;
 let driverDrawWarningInput = null;
 
 function handleDriverDrawExclusivity(changedInput) {
-  if (!['driver', 'owner_draw'].includes(changedInput.id)) return;
+  if (!['driver_rate', 'owner_draw'].includes(changedInput.id)) return;
 
-  const otherId = changedInput.id === 'driver' ? 'owner_draw' : 'driver';
+  const otherId = changedInput.id === 'driver_rate' ? 'owner_draw' : 'driver_rate';
   const otherInput = document.getElementById(otherId);
   const warning = document.getElementById('driver-draw-warning');
   const changedAmount = getNumericInputValue(changedInput.id);
@@ -12,8 +12,8 @@ function handleDriverDrawExclusivity(changedInput) {
 
   if (changedAmount > 0 && otherAmount > 0) {
     otherInput.value = '0';
-    const clearedLabel = otherId === 'driver' ? 'Hired-driver wages' : 'Owner-draw target';
-    warning.textContent = `Hired-driver wages and owner-draw target cannot both be above $0. ${clearedLabel} was set to $0.`;
+    const clearedLabel = otherId === 'driver_rate' ? 'Hired-driver rate' : 'Owner-draw target';
+    warning.textContent = `Hired-driver rate and owner-draw target cannot both be positive. ${clearedLabel} was set to 0.`;
     warning.hidden = false;
     driverDrawWarningInput = changedInput.id;
     return;
@@ -28,9 +28,9 @@ function handleDriverDrawExclusivity(changedInput) {
 
 function runCalculator() {
   const inputs = readInputs(calculatorType);
-  if (inputs.driver > 0 && inputs.owner_draw > 0) {
+  if (inputs.driver_rate > 0 && inputs.owner_draw > 0) {
     const warning = document.getElementById('driver-draw-warning');
-    warning.textContent = 'Hired-driver wages and owner-draw target cannot both be above $0. Set one to $0 to continue.';
+    warning.textContent = 'Hired-driver rate and owner-draw target cannot both be positive. Set one to 0 to continue.';
     warning.hidden = false;
   }
   const result = calculatorType === 'company' ? calculateCompanyDriver(inputs) : calculate(inputs);
