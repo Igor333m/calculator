@@ -54,8 +54,11 @@ Cash available before owner draw and income taxes divided by total business mile
 **Business break-even rate**:
 The gross revenue per total business mile required to cover operating cash costs, revenue-based fees, and planned maintenance reserves, before escrow movements and owner draw.
 
-**Owner-draw target rate**:
-The gross freight revenue per loaded mile required to cover the business cost budget for loaded and deadhead miles, net escrow contributions, and the planned owner draw for the reporting period.
+**Target rate per loaded mile**:
+The gross freight revenue per loaded mile required to cover the business cost budget for loaded and deadhead miles, net escrow contributions, and any planned owner draw for the reporting period.
+
+**Hired-driver rate per business mile**:
+The amount paid to a hired driver for each loaded or deadhead business mile. Monthly hired-driver wages equal this rate multiplied by total business miles.
 
 **Company-driver gross pay**:
 Compensation a company driver earns before taxes and withholding, distinct from the truck's freight revenue and operating costs.

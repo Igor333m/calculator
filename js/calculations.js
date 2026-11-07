@@ -16,8 +16,8 @@ function validateInputs(inputs, fields) {
   if ('dead_target_pct' in fields && Number.isFinite(inputs.dead_target_pct) && inputs.dead_target_pct > 100) {
     errors.dead_target_pct = 'Deadhead target must be between 0% and 100%.';
   }
-  if ('driver' in fields && 'owner_draw' in fields && inputs.driver > 0 && inputs.owner_draw > 0) {
-    errors.owner_draw = 'Choose either hired-driver wages or an owner-draw target, not both.';
+  if ('driver_rate' in fields && 'owner_draw' in fields && inputs.driver_rate > 0 && inputs.owner_draw > 0) {
+    errors.owner_draw = 'Choose either a hired-driver rate or an owner-draw target, not both.';
   }
   return errors;
 }
@@ -50,7 +50,7 @@ function calculate(inputs) {
   const repairsReserve = inputs.repairs_rate * totalMiles;
   const maintenanceRate = inputs.oil_rate + inputs.tires_rate + inputs.repairs_rate;
   const maintenance = oilReserve + tiresReserve + repairsReserve;
-  const driverPay = inputs.driver;
+  const driverPay = inputs.driver_rate * totalMiles;
   const otherOps = inputs.tolls + inputs.admin + inputs.eld + inputs.other_variable;
   const baseCost = fuel + monthlyInsurance + equipmentFixed + annualMonthly +
     maintenance + driverPay + otherOps;

@@ -10,7 +10,7 @@ for (const file of ['constants.js', 'calculations.js', 'utils.js', 'renderBreakd
 }
 const ids = vm.runInContext('Object.keys(OWNER_FIELDS)', context);
 const inputs = Object.fromEntries(ids.map((id, index) => [id, index + 1]));
-Object.assign(inputs, { miles: 1000, dead_miles: 200, mpg: 7, carrier_pct: 12, driver: 0, owner_draw: 100 });
+Object.assign(inputs, { miles: 1000, dead_miles: 200, mpg: 7, carrier_pct: 12, driver_rate: 0, owner_draw: 100 });
 
 test('itemized monthly amounts reconcile with each calculated breakdown row', () => {
   const result = context.calculate(inputs);

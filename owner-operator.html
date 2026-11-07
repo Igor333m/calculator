@@ -26,7 +26,7 @@
     <div id="validation-errors" class="validation-errors" role="alert" hidden></div>
 
     <section id="owner-panel" aria-label="Owner-Operator Calculator">
-    <p class="section-note">Enter your monthly budget. The owner-draw target is per loaded mile; other per-mile results use loaded + deadhead miles. Example inputs are editable; weekly and annual values project the same monthly budget.</p>
+    <p class="section-note">Enter your monthly budget. Target Rate per Mile is per loaded mile; other per-mile results use loaded + deadhead miles. Example inputs are editable; weekly and annual values project the same monthly budget.</p>
     <div class="results-bar owner-results-bar">
       <div class="result-card">
         <div class="r-label">Revenue per total mile (RPM)</div>
@@ -39,7 +39,7 @@
         <div class="r-sub">Operating costs, reserves, and carrier fee</div>
       </div>
       <div class="result-card main-result">
-        <div class="r-label">Owner-draw target rate (Target RPM)</div>
+        <div class="r-label">Target Rate (Target RPM)</div>
         <div class="r-value" id="r-owner-target-rate">—</div>
         <div class="r-sub">Per loaded mile; covers loaded + deadhead costs</div>
       </div>
@@ -107,7 +107,7 @@
               <span class="prefix">$</span>
               <input type="number" id="revenue" value="24500" min="0" step="0.01" required>
             </div>
-            <p class="input-help">To fund your owner draw, multiply the owner-draw target rate by loaded miles for your monthly gross revenue target.</p>
+            <p class="input-help">Multiply the target rate by loaded miles for your monthly gross revenue target.</p>
           </div>
         </div>
       </div>
@@ -329,9 +329,10 @@
             <label>Tolls & scales ($/month)</label>
             <div class="input-wrap"><span class="prefix">$</span><input type="number" id="tolls" value="250" step="10"></div>
           </div>
-          <div class="field" title="Actual wage expense if you hire a driver. Enter your own draw separately below.">
-            <label>Hired-driver wages ($/month)</label>
-            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="driver" value="0" step="100"></div>
+          <div class="field" title="Rate paid to a hired driver for each loaded or deadhead business mile.">
+            <label>Hired-driver rate ($/mile)</label>
+            <div class="input-wrap"><span class="prefix">$</span><input type="number" id="driver_rate" value="0" step="0.01"></div>
+            <p class="input-help">Enter 0.60 for 60¢ per mile. Pay uses loaded + deadhead miles.</p>
           </div>
           <div class="field" title="Monthly cost for administrative and bookkeeping services.">
             <label>Admin & bookkeeping ($/month)</label>

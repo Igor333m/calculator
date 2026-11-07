@@ -25,7 +25,7 @@ const OWNER_FIELDS = {
   truck_reg: 'Truck registration', ucr: 'UCR registration', ifta_sticker: 'IFTA sticker',
   dot_physical: 'DOT physical', hvut: 'HVUT', other_annual: 'Other annual fees',
   oil_rate: 'Oil and service reserve rate', tires_rate: 'Tire reserve rate', repairs_rate: 'Repair reserve rate',
-  carrier_pct: 'Carrier percentage', tolls: 'Tolls and scales', driver: 'Hired-driver wages',
+  carrier_pct: 'Carrier percentage', tolls: 'Tolls and scales', driver_rate: 'Hired-driver rate',
   admin: 'Admin and bookkeeping', eld: 'ELD and technology', other_variable: 'Other operating costs'
 };
 
