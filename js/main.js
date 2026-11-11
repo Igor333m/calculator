@@ -19,8 +19,9 @@ function syncBrokerRate(changedId) {
 
   if (!hasMiles) {
     milesUnavailable = true;
+    // Discard any provisional rate calculated from partially entered mileage.
+    if (changedId === 'revenue' || derivingRateDuringMileageEntry) brokerRate = null;
     derivingRateDuringMileageEntry = false;
-    if (changedId === 'revenue') brokerRate = null;
     brokerRateInvalid = false;
     rateInput.value = '';
   } else if (changedId === 'broker_rate') {

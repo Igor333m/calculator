@@ -118,3 +118,21 @@ test('editing revenue while mileage is unavailable derives a new rate on re-entr
   assert.equal(app.elements.revenue.value, '30000');
   assert.equal(app.elements.broker_rate.value, '2.5');
 });
+
+test('restarting mileage entry keeps the revenue entered while miles were unavailable', () => {
+  const app = setup();
+  app.edit('miles', '');
+  app.edit('revenue', '30000');
+  app.edit('miles', '1');
+  app.edit('miles', '');
+
+  for (const miles of ['1', '12', '120', '1200', '12000']) {
+    app.edit('miles', miles);
+    assert.equal(app.result().grossRevenue, 30000);
+  }
+  assert.equal(app.elements.broker_rate.value, '2.5');
+
+  app.elements.miles.blur();
+  app.edit('miles', '10000');
+  assert.equal(app.result().grossRevenue, 25000);
+});
