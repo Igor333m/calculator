@@ -2,6 +2,74 @@ const calculatorType = document.body.dataset.calculator;
 let driverDrawWarningInput = null;
 let driverModeActive = false;
 let ownerEscrow = null;
+let brokerRate = null;
+let brokerRateInvalid = false;
+let milesUnavailable = false;
+let derivingRateDuringMileageEntry = false;
+
+function syncBrokerRate(changedId) {
+  if (calculatorType !== 'owner') return;
+  const rateInput = document.getElementById('broker_rate');
+  const revenueInput = document.getElementById('revenue');
+  if (!rateInput || !revenueInput) return;
+  const miles = getNumericInputValue('miles');
+  const revenue = getNumericInputValue('revenue');
+  const hasMiles = Number.isFinite(miles) && miles > 0;
+  rateInput.disabled = !hasMiles;
+
+  if (!hasMiles) {
+    milesUnavailable = true;
+    // Discard any provisional rate calculated from partially entered mileage.
+    if (changedId === 'revenue' || derivingRateDuringMileageEntry) brokerRate = null;
+    derivingRateDuringMileageEntry = false;
+    brokerRateInvalid = false;
+    rateInput.value = '';
+  } else if (changedId === 'broker_rate') {
+    milesUnavailable = false;
+    derivingRateDuringMileageEntry = false;
+    const rate = getNumericInputValue('broker_rate');
+    brokerRateInvalid = rateInput.value.trim() === '' || !Number.isFinite(rate) || rate < 0;
+    brokerRate = brokerRateInvalid ? null : rate;
+    if (!brokerRateInvalid) {
+      const amount = rate * miles;
+      revenueInput.value = Number.isFinite(amount) ? String(Number(amount.toPrecision(15))) : '';
+    }
+  } else if (changedId === 'revenue') {
+    milesUnavailable = false;
+    derivingRateDuringMileageEntry = false;
+    brokerRateInvalid = false;
+    brokerRate = Number.isFinite(revenue) && revenue >= 0 ? revenue / miles : null;
+    rateInput.value = brokerRate !== null && Number.isFinite(brokerRate)
+      ? String(Number(brokerRate.toFixed(4))) : '';
+  } else if (changedId === 'miles' && milesUnavailable) {
+    milesUnavailable = false;
+    brokerRateInvalid = false;
+    if (brokerRate !== null) {
+      derivingRateDuringMileageEntry = false;
+      rateInput.value = String(Number(brokerRate.toFixed(4)));
+      const amount = brokerRate * miles;
+      revenueInput.value = Number.isFinite(amount) ? String(Number(amount.toPrecision(15))) : '';
+    } else {
+      derivingRateDuringMileageEntry = true;
+      brokerRate = Number.isFinite(revenue) && revenue >= 0 ? revenue / miles : null;
+      rateInput.value = brokerRate !== null && Number.isFinite(brokerRate)
+        ? String(Number(brokerRate.toFixed(4))) : '';
+    }
+  } else if (changedId === 'miles' && derivingRateDuringMileageEntry) {
+    brokerRateInvalid = false;
+    brokerRate = Number.isFinite(revenue) && revenue >= 0 ? revenue / miles : null;
+    rateInput.value = brokerRate !== null && Number.isFinite(brokerRate)
+      ? String(Number(brokerRate.toFixed(4))) : '';
+  } else if (changedId === 'miles' && brokerRate !== null) {
+    const amount = brokerRate * miles;
+    revenueInput.value = Number.isFinite(amount) ? String(Number(amount.toPrecision(15))) : '';
+  } else if (changedId !== 'miles') {
+    brokerRateInvalid = false;
+    brokerRate = Number.isFinite(revenue) && revenue >= 0 ? revenue / miles : null;
+    rateInput.value = brokerRate !== null && Number.isFinite(brokerRate)
+      ? String(Number(brokerRate.toFixed(4))) : '';
+  }
+}
 
 function syncCompensationMode() {
   if (calculatorType !== 'owner') return;
@@ -53,7 +121,10 @@ function runCalculator() {
     warning.textContent = 'Hired-driver rate and owner-draw target cannot both be positive. Set one to 0 to continue.';
     warning.hidden = false;
   }
-  const result = calculatorType === 'company' ? calculateCompanyDriver(inputs) : calculate(inputs);
+  let result = calculatorType === 'company' ? calculateCompanyDriver(inputs) : calculate(inputs);
+  if (calculatorType === 'owner' && brokerRateInvalid) {
+    result = { valid: false, errors: { ...result.errors, broker_rate: 'Enter a valid non-negative broker rate.' } };
+  }
   renderValidation(result.errors);
   const displayResult = result.valid ? result : null;
   if (calculatorType === 'company') {
@@ -70,11 +141,13 @@ document.querySelectorAll('input').forEach((element) => {
   const label = element.closest('.field')?.querySelector('label');
   if (label) label.htmlFor = element.id;
   element.addEventListener('input', () => {
+    if (['miles', 'revenue', 'broker_rate'].includes(element.id)) syncBrokerRate(element.id);
     handleDriverDrawExclusivity(element);
     syncCompensationMode();
     runCalculator();
   });
   element.addEventListener('blur', () => {
+    if (element.id === 'miles') derivingRateDuringMileageEntry = false;
     if (element.id === driverDrawWarningInput) {
       const warning = document.getElementById('driver-draw-warning');
       warning.hidden = true;
@@ -85,4 +158,5 @@ document.querySelectorAll('input').forEach((element) => {
 });
 
 syncCompensationMode();
+syncBrokerRate();
 requestAnimationFrame(runCalculator);

@@ -104,6 +104,7 @@
   .field-list { padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
   .field-list-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 20px; }
   .field-list-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px 20px; }
+  @media (max-width: 640px) { .miles-revenue-grid { grid-template-columns: 1fr; } }
   .field { display: flex; flex-direction: column; gap: 4px; }
   .field-full { grid-column: 1 / -1; }
   .field label { font-size: 12px; color: var(--text-gray); font-weight: 500; }

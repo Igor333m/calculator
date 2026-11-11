@@ -94,7 +94,7 @@
       <!-- Miles & Revenue -->
       <div class="section full-width">
         <div class="section-head"><span class="ico">📍</span> Miles & Revenue</div>
-        <div class="field-list field-list-grid-2">
+        <div class="field-list field-list-grid-3 miles-revenue-grid">
           <div class="field" title="Loaded miles only — do not include deadhead/empty miles here">
             <label>Loaded miles per month</label>
             <div class="input-wrap">
@@ -108,6 +108,14 @@
               <input type="number" id="revenue" value="24500" min="0" step="0.01" required>
             </div>
             <p class="input-help">Multiply the target rate by loaded miles for your monthly gross revenue target.</p>
+          </div>
+          <div class="field">
+            <label>Broker rate ($/loaded mile)</label>
+            <div class="input-wrap">
+              <span class="prefix">$</span>
+              <input type="number" id="broker_rate" value="2.45" min="0" step="any" placeholder="Unavailable" aria-describedby="broker-rate-help">
+            </div>
+            <p class="input-help" id="broker-rate-help">Enter your average monthly rate per loaded mile. Revenue updates automatically.</p>
           </div>
         </div>
       </div>
