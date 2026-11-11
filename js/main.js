@@ -1,5 +1,25 @@
 const calculatorType = document.body.dataset.calculator;
 let driverDrawWarningInput = null;
+let driverModeActive = false;
+let ownerEscrow = null;
+
+function syncCompensationMode() {
+  if (calculatorType !== 'owner') return;
+  const driverMode = getNumericInputValue('driver_rate') > 0;
+  const escrow = document.getElementById('escrow');
+  const released = document.getElementById('escrow_released');
+  const carrier = document.getElementById('carrier_pct');
+  if (driverMode && !driverModeActive) {
+    ownerEscrow = { contribution: escrow.value, released: released.value };
+    escrow.value = released.value = carrier.value = '0';
+  } else if (!driverMode && driverModeActive) {
+    escrow.value = ownerEscrow.contribution;
+    released.value = ownerEscrow.released;
+    carrier.value = '12';
+  }
+  escrow.disabled = released.disabled = carrier.disabled = driverMode;
+  driverModeActive = driverMode;
+}
 
 function handleDriverDrawExclusivity(changedInput) {
   if (!['driver_rate', 'owner_draw'].includes(changedInput.id)) return;
@@ -51,6 +71,7 @@ document.querySelectorAll('input').forEach((element) => {
   if (label) label.htmlFor = element.id;
   element.addEventListener('input', () => {
     handleDriverDrawExclusivity(element);
+    syncCompensationMode();
     runCalculator();
   });
   element.addEventListener('blur', () => {
@@ -63,4 +84,5 @@ document.querySelectorAll('input').forEach((element) => {
   });
 });
 
+syncCompensationMode();
 requestAnimationFrame(runCalculator);

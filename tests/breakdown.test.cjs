@@ -49,5 +49,18 @@ test('detail columns handle no mileage and an empty budget without invalid numbe
   assert.equal(values.perMile, '—');
   assert.equal(values.weekly, '$0.00');
   assert.equal(values.monthly, '$0.00');
-  assert.equal(values.percentage, '0.0%');
+  assert.equal(values.percentage, '—');
+});
+
+test('owner breakdown includes contributions and subtracts released escrow', () => {
+  const changed = { ...inputs, owner_draw: 100, escrow: 150, escrow_released: 40 };
+  const result = context.calculate(changed);
+  const primary = context.primaryBreakdown(changed, result);
+  assert.equal(primary.amount, 210);
+  assert.deepEqual(Array.from(primary.details, (item) => [item.label, item.amount]), [
+    ['Owner-draw target', 100], ['Escrow contributions', 150], ['Escrow released or used', -40]
+  ]);
+  assert.equal(context.breakdownValues(210, result).percentage, (210 / (result.total + 210) * 100).toFixed(1) + '%');
+  const released = { ...changed, escrow_released: 1000 };
+  assert.equal(context.primaryBreakdown(released, context.calculate(released)).amount, -750);
 });

@@ -180,6 +180,17 @@ test('owner draw and refundable escrow stay outside business costs and freight r
   assert.equal(released.ownerTargetRate, 0);
 });
 
+test('escrow changes the target and available cash without changing per-mile revenue or costs', () => {
+  const noEscrow = context.calculate({ ...scenario, escrow: 0, escrow_released: 0 });
+  const escrow = context.calculate({ ...scenario, escrow: 150, escrow_released: 40 });
+  close(escrow.ownerTargetRevenue - noEscrow.ownerTargetRevenue, 110 / 0.9);
+  close(escrow.ownerTargetRate - noEscrow.ownerTargetRate, 110 / 0.9 / scenario.miles);
+  close(noEscrow.cashBeforeDraw - escrow.cashBeforeDraw, 110);
+  close(noEscrow.cashPerMile - escrow.cashPerMile, 110 / 300);
+  assert.equal(escrow.costPerMile, noEscrow.costPerMile);
+  assert.equal(escrow.revenuePerMile, noEscrow.revenuePerMile);
+});
+
 test('positive hired-driver rate and owner draw cannot be used together', () => {
   const result = context.calculate({ ...scenario, driver_rate: 0.60, owner_draw: 300 });
   assert.equal(result.valid, false);

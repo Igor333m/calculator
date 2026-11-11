@@ -41,7 +41,7 @@
       <div class="result-card main-result">
         <div class="r-label">Target Rate (Target RPM)</div>
         <div class="r-value" id="r-owner-target-rate">—</div>
-        <div class="r-sub">Per loaded mile; covers loaded + deadhead costs</div>
+        <div class="r-sub">Per loaded mile; covers all expenses</div>
       </div>
     </div>
 
@@ -316,7 +316,7 @@
               <input type="number" id="carrier_pct" value="12" min="0" max="99.999" step="0.5" class="no-prefix input-with-suffix">
               <span class="suffix-label">%</span>
             </div>
-            <p class="input-help">This percentage applies to the full revenue entered above. Use a percentage of that total, not a contract rate charged on a different revenue base.</p>
+            <p class="input-help">This percentage applies to the full revenue entered above, not a different contract revenue base. Hired-driver pay sets it to 0%; switching back restores the 12% base, which you can edit.</p>
           </div>
         </div>
       </div>
@@ -332,7 +332,7 @@
           <div class="field" title="Rate paid to a hired driver for each loaded or deadhead business mile.">
             <label>Hired-driver rate ($/mile)</label>
             <div class="input-wrap"><span class="prefix">$</span><input type="number" id="driver_rate" value="0" step="0.01"></div>
-            <p class="input-help">Enter 0.60 for 60¢ per mile. Pay uses loaded + deadhead miles.</p>
+            <p class="input-help">Enter 0.60 for 60¢ per mile. Pay uses loaded + deadhead miles. A positive rate sets owner draw, escrow, and carrier fee to zero.</p>
           </div>
           <div class="field" title="Monthly cost for administrative and bookkeeping services.">
             <label>Admin & bookkeeping ($/month)</label>
@@ -365,9 +365,9 @@
           <div class="field">
             <label>Escrow released or used ($/month)</label>
             <div class="input-wrap"><span class="prefix">$</span><input type="number" id="escrow_released" value="0" step="10"></div>
-            <p class="input-help">Include refunds and escrow used for charges already listed in your expenses.</p>
+            <p class="input-help">Money returned from escrow, or applied directly to an expense already included above. Enter 0 if none was released or used this month; do not count the same release twice.</p>
           </div>
-          <p class="input-help field-full">Net escrow contribution: <strong id="r-net-escrow">—</strong>. Contributions reduce available cash; releases increase it. Escrow is separate from revenue and operating costs.</p>
+          <p class="input-help field-full">Net escrow contribution: <strong id="r-net-escrow">—</strong>. Contributions reduce available cash; releases increase it. Escrow is separate from revenue and operating costs. Previous escrow entries return when hired-driver pay is switched off.</p>
         </div>
       </div>
 
@@ -377,11 +377,11 @@
     <div class="breakdown">
       <div class="breakdown-head">Monthly Business Cost Breakdown</div>
       <div class="breakdown-hint">Click or tap a row to see itemized costs. Use Enter or Space with a keyboard.</div>
-      <div id="breakdown-share-label" class="breakdown-column-label">Share of costs + owner draw (%)</div>
+      <div id="breakdown-share-label" class="breakdown-column-label">Share of costs + draw (%)</div>
       <div id="breakdown-rows"></div>
     </div>
 
-    <p class="footer-note">Monthly business costs include maintenance reserves and carrier fees. Owner draw is included in the breakdown share percentages, but remains outside business costs, CPM, and break-even calculations. Refundable escrow and income taxes are separate. Annual fees are included once.</p>
+    <p class="footer-note">Monthly business costs include maintenance reserves and carrier fees. Owner draw and net escrow appear in the breakdown and target rate, but remain outside business costs, CPM, revenue, and business break-even calculations. Income taxes are separate. Annual fees are included once.</p>
     </section>
 
 

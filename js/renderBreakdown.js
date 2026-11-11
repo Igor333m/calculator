@@ -37,13 +37,28 @@ function breakdownDetails(inputs, result) {
 }
 
 function breakdownValues(amount, result) {
-  const shareBase = result.total + (result.ownerDraw || 0);
+  const shareBase = result.total + (result.ownerDraw || 0) + (result.netEscrow || 0);
   return {
     perMile: formatPerMile(result.totalMiles > 0 ? amount / result.totalMiles : null),
     weekly: formatCurrency(amount / MONTHLY_TO_WEEKLY),
     monthly: formatCurrency(amount),
-    percentage: (shareBase > 0 ? amount / shareBase * 100 : 0).toFixed(1) + '%'
+    percentage: shareBase > 0 ? (amount / shareBase * 100).toFixed(1) + '%' : '—'
   };
+}
+
+function primaryBreakdown(inputs, result) {
+  if (inputs.driver_rate > 0) {
+    const miles = result.totalMiles.toLocaleString('en-US', { maximumFractionDigits: 10 });
+    const rate = '$' + inputs.driver_rate.toLocaleString('en-US', { maximumFractionDigits: 10 });
+    return { label: 'Hired-driver wages', amount: result.driverPay,
+      details: [{ label: 'Hired-driver wages', amount: result.driverPay, note: `${rate}/business mile × ${miles} business miles` }] };
+  }
+  return { label: 'Owner draw & net escrow', amount: result.ownerDraw + result.netEscrow,
+    details: [
+      { label: 'Owner-draw target', amount: result.ownerDraw },
+      { label: 'Escrow contributions', amount: inputs.escrow },
+      { label: 'Escrow released or used', amount: -inputs.escrow_released, note: 'Reduces the cash needed this month' }
+    ] };
 }
 
 let breakdownPopoverCleanups = [];
@@ -54,7 +69,7 @@ function renderBreakdown(result, inputs) {
   if (shareLabel) {
     shareLabel.textContent = inputs.driver_rate > 0
       ? 'Share of business costs (%)'
-      : 'Share of costs + owner draw (%)';
+      : 'Share of costs + draw (%)';
   }
   const openIndex = document.querySelector('.breakdown-popover:popover-open')?.dataset.index;
   breakdownPopoverCleanups.forEach((cleanup) => cleanup());
@@ -62,23 +77,8 @@ function renderBreakdown(result, inputs) {
   rows.innerHTML = '';
   if (!result) return;
 
-  const ownerDraw = result.ownerDraw || 0;
-  const driverPay = result.driverPay || 0;
-  const driverMiles = result.totalMiles.toLocaleString('en-US', { maximumFractionDigits: 10 });
-  const driverRate = '$' + inputs.driver_rate.toLocaleString('en-US', { maximumFractionDigits: 10 });
-  const usesOwnerDraw = ownerDraw > 0;
-  const usesDriverPay = !usesOwnerDraw && driverPay > 0;
-  const primaryAmount = usesOwnerDraw ? ownerDraw : driverPay;
-  const primaryLabel = usesOwnerDraw
-    ? 'Owner-draw target'
-    : usesDriverPay
-      ? 'Hired-driver Wages'
-      : 'Owner Draw / Hired-driver Wages';
-  const primaryDetails = usesOwnerDraw
-    ? [{ label: 'Owner-draw target', amount: ownerDraw }]
-    : usesDriverPay
-      ? [{ label: 'Hired-driver wages', amount: driverPay, note: `${driverRate}/business mile × ${driverMiles} business miles` }]
-      : [{ label: 'Owner-draw target', amount: 0 }, { label: 'Hired-driver wages', amount: 0 }];
+  const usesDriverPay = inputs.driver_rate > 0;
+  const primary = primaryBreakdown(inputs, result);
 
   function addRow(label, amount, color, details, index, primary = false) {
     const values = breakdownValues(amount, result);
@@ -100,7 +100,7 @@ function renderBreakdown(result, inputs) {
       <span class="br-pct">${values.percentage}</span>
     `;
     const bar = row.querySelector('.br-bar');
-    bar.style.width = values.percentage;
+    bar.style.width = `${Math.max(0, Math.min(100, parseFloat(values.percentage) || 0))}%`;
     bar.style.background = color;
 
     const cells = (monthlyAmount) => {
@@ -127,7 +127,7 @@ function renderBreakdown(result, inputs) {
           <tfoot><tr><th scope="row">Total</th>${cells(amount)}</tr></tfoot>
         </table>
       </div>
-      <p class="breakdown-popover-note">Percentages are shares of ${usesDriverPay ? 'business costs' : 'business costs plus owner draw'}. Weekly estimates use 52 weeks per year. Totals are calculated before rounding.</p>
+      <p class="breakdown-popover-note">Percentages are shares of ${usesDriverPay ? 'business costs' : 'business costs plus owner draw and net escrow'}. Releases are shown as negative amounts. Shares are unavailable when the combined budget is zero or negative. Weekly estimates use 52 weeks per year. Totals are calculated before rounding.</p>
     `;
 
     function positionPanel() {
@@ -178,7 +178,7 @@ function renderBreakdown(result, inputs) {
     if (String(index) === openIndex) panel.showPopover();
   }
 
-  addRow(primaryLabel, primaryAmount, '#f59e0b', primaryDetails, 'primary', true);
+  addRow(primary.label, primary.amount, '#f59e0b', primary.details, 'primary', true);
   const details = breakdownDetails(inputs, result);
   result.breakdown.forEach((amount, index) => addRow(CATS[index], amount, BAR_COLORS[index], details[index], index));
 }
