@@ -4,6 +4,8 @@ let driverModeActive = false;
 let ownerEscrow = null;
 let brokerRate = null;
 let brokerRateInvalid = false;
+let milesUnavailable = false;
+let derivingRateDuringMileageEntry = false;
 
 function syncBrokerRate(changedId) {
   if (calculatorType !== 'owner') return;
@@ -16,10 +18,14 @@ function syncBrokerRate(changedId) {
   rateInput.disabled = !hasMiles;
 
   if (!hasMiles) {
-    brokerRate = null;
+    milesUnavailable = true;
+    derivingRateDuringMileageEntry = false;
+    if (changedId === 'revenue') brokerRate = null;
     brokerRateInvalid = false;
     rateInput.value = '';
   } else if (changedId === 'broker_rate') {
+    milesUnavailable = false;
+    derivingRateDuringMileageEntry = false;
     const rate = getNumericInputValue('broker_rate');
     brokerRateInvalid = rateInput.value.trim() === '' || !Number.isFinite(rate) || rate < 0;
     brokerRate = brokerRateInvalid ? null : rate;
@@ -27,10 +33,24 @@ function syncBrokerRate(changedId) {
       const amount = rate * miles;
       revenueInput.value = Number.isFinite(amount) ? String(Number(amount.toPrecision(15))) : '';
     }
+  } else if (changedId === 'revenue') {
+    milesUnavailable = false;
+    derivingRateDuringMileageEntry = false;
+    brokerRateInvalid = false;
+    brokerRate = Number.isFinite(revenue) && revenue >= 0 ? revenue / miles : null;
+    rateInput.value = brokerRate !== null && Number.isFinite(brokerRate)
+      ? String(Number(brokerRate.toFixed(4))) : '';
+  } else if (changedId === 'miles' && (milesUnavailable || derivingRateDuringMileageEntry)) {
+    milesUnavailable = false;
+    derivingRateDuringMileageEntry = true;
+    brokerRateInvalid = false;
+    brokerRate = Number.isFinite(revenue) && revenue >= 0 ? revenue / miles : null;
+    rateInput.value = brokerRate !== null && Number.isFinite(brokerRate)
+      ? String(Number(brokerRate.toFixed(4))) : '';
   } else if (changedId === 'miles' && brokerRate !== null) {
     const amount = brokerRate * miles;
     revenueInput.value = Number.isFinite(amount) ? String(Number(amount.toPrecision(15))) : '';
-  } else if (changedId !== 'miles' || brokerRate === null) {
+  } else if (changedId !== 'miles') {
     brokerRateInvalid = false;
     brokerRate = Number.isFinite(revenue) && revenue >= 0 ? revenue / miles : null;
     rateInput.value = brokerRate !== null && Number.isFinite(brokerRate)
@@ -114,6 +134,7 @@ document.querySelectorAll('input').forEach((element) => {
     runCalculator();
   });
   element.addEventListener('blur', () => {
+    if (element.id === 'miles') derivingRateDuringMileageEntry = false;
     if (element.id === driverDrawWarningInput) {
       const warning = document.getElementById('driver-draw-warning');
       warning.hidden = true;
