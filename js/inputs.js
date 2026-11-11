@@ -14,7 +14,9 @@ function renderValidation(errors) {
   document.querySelectorAll('.field-error').forEach((element) => element.remove());
   document.querySelectorAll('input').forEach((element) => {
     element.removeAttribute('aria-invalid');
-    element.removeAttribute('aria-describedby');
+    const descriptions = (element.getAttribute('aria-describedby') || '').split(/\s+/).filter((id) => id && id !== element.id + '-error');
+    if (descriptions.length) element.setAttribute('aria-describedby', descriptions.join(' '));
+    else element.removeAttribute('aria-describedby');
   });
   const messages = Object.values(errors);
   const summary = document.getElementById('validation-errors');
@@ -28,7 +30,7 @@ function renderValidation(errors) {
     error.id = id + '-error';
     error.textContent = message;
     input.setAttribute('aria-invalid', 'true');
-    input.setAttribute('aria-describedby', error.id);
+    input.setAttribute('aria-describedby', [input.getAttribute('aria-describedby'), error.id].filter(Boolean).join(' '));
     input.closest('.field').appendChild(error);
   }
 }

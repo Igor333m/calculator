@@ -312,7 +312,7 @@ test('calculator pages expose valid defaults for their own calculation schema', 
   const ownerPage = readPageInputs('owner-operator.html');
   const companyPage = readPageInputs('company-driver.html');
   const companyIds = vm.runInContext('Object.keys(COMPANY_FIELDS)', context);
-  assert.deepEqual([...ownerPage.inputIds].sort(), [...ownerIds].sort());
+  assert.deepEqual([...ownerPage.inputIds].sort(), [...ownerIds, 'broker_rate'].sort());
   assert.deepEqual([...companyPage.inputIds].sort(), [...companyIds].sort());
   assert.equal(context.calculate(ownerPage.defaults).valid, true);
   assert.equal(context.calculateCompanyDriver(companyPage.defaults).valid, true);

@@ -2,6 +2,41 @@ const calculatorType = document.body.dataset.calculator;
 let driverDrawWarningInput = null;
 let driverModeActive = false;
 let ownerEscrow = null;
+let brokerRate = null;
+let brokerRateInvalid = false;
+
+function syncBrokerRate(changedId) {
+  if (calculatorType !== 'owner') return;
+  const rateInput = document.getElementById('broker_rate');
+  const revenueInput = document.getElementById('revenue');
+  if (!rateInput || !revenueInput) return;
+  const miles = getNumericInputValue('miles');
+  const revenue = getNumericInputValue('revenue');
+  const hasMiles = Number.isFinite(miles) && miles > 0;
+  rateInput.disabled = !hasMiles;
+
+  if (!hasMiles) {
+    brokerRate = null;
+    brokerRateInvalid = false;
+    rateInput.value = '';
+  } else if (changedId === 'broker_rate') {
+    const rate = getNumericInputValue('broker_rate');
+    brokerRateInvalid = rateInput.value.trim() === '' || !Number.isFinite(rate) || rate < 0;
+    brokerRate = brokerRateInvalid ? null : rate;
+    if (!brokerRateInvalid) {
+      const amount = rate * miles;
+      revenueInput.value = Number.isFinite(amount) ? String(Number(amount.toPrecision(15))) : '';
+    }
+  } else if (changedId === 'miles' && brokerRate !== null) {
+    const amount = brokerRate * miles;
+    revenueInput.value = Number.isFinite(amount) ? String(Number(amount.toPrecision(15))) : '';
+  } else if (changedId !== 'miles' || brokerRate === null) {
+    brokerRateInvalid = false;
+    brokerRate = Number.isFinite(revenue) && revenue >= 0 ? revenue / miles : null;
+    rateInput.value = brokerRate !== null && Number.isFinite(brokerRate)
+      ? String(Number(brokerRate.toFixed(4))) : '';
+  }
+}
 
 function syncCompensationMode() {
   if (calculatorType !== 'owner') return;
@@ -53,7 +88,10 @@ function runCalculator() {
     warning.textContent = 'Hired-driver rate and owner-draw target cannot both be positive. Set one to 0 to continue.';
     warning.hidden = false;
   }
-  const result = calculatorType === 'company' ? calculateCompanyDriver(inputs) : calculate(inputs);
+  let result = calculatorType === 'company' ? calculateCompanyDriver(inputs) : calculate(inputs);
+  if (calculatorType === 'owner' && brokerRateInvalid) {
+    result = { valid: false, errors: { ...result.errors, broker_rate: 'Enter a valid non-negative broker rate.' } };
+  }
   renderValidation(result.errors);
   const displayResult = result.valid ? result : null;
   if (calculatorType === 'company') {
@@ -70,6 +108,7 @@ document.querySelectorAll('input').forEach((element) => {
   const label = element.closest('.field')?.querySelector('label');
   if (label) label.htmlFor = element.id;
   element.addEventListener('input', () => {
+    if (['miles', 'revenue', 'broker_rate'].includes(element.id)) syncBrokerRate(element.id);
     handleDriverDrawExclusivity(element);
     syncCompensationMode();
     runCalculator();
@@ -85,4 +124,5 @@ document.querySelectorAll('input').forEach((element) => {
 });
 
 syncCompensationMode();
+syncBrokerRate();
 requestAnimationFrame(runCalculator);
