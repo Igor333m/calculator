@@ -89,3 +89,32 @@ test('unavailable mileage preserves revenue, and invalid rates do not silently u
   app.edit('broker_rate', '0');
   assert.equal(app.result().grossRevenue, 0);
 });
+
+test('clearing and retyping loaded miles restores the cached broker rate', () => {
+  const app = setup();
+  app.edit('miles', '');
+  assert.equal(app.elements.revenue.value, '24500');
+  assert.equal(app.elements.broker_rate.value, '');
+
+  for (const digit of '2000') {
+    app.elements.miles.value += digit;
+    app.elements.miles.input();
+  }
+
+  assert.equal(app.elements.broker_rate.value, '2.45');
+  assert.equal(app.elements.revenue.value, '4900');
+  assert.equal(app.result().grossRevenue, 4900);
+});
+
+test('editing revenue while mileage is unavailable derives a new rate on re-entry', () => {
+  const app = setup();
+  app.edit('miles', '');
+  app.edit('revenue', '30000');
+  for (const digit of '12000') {
+    app.elements.miles.value += digit;
+    app.elements.miles.input();
+  }
+
+  assert.equal(app.elements.revenue.value, '30000');
+  assert.equal(app.elements.broker_rate.value, '2.5');
+});

@@ -40,9 +40,21 @@ function syncBrokerRate(changedId) {
     brokerRate = Number.isFinite(revenue) && revenue >= 0 ? revenue / miles : null;
     rateInput.value = brokerRate !== null && Number.isFinite(brokerRate)
       ? String(Number(brokerRate.toFixed(4))) : '';
-  } else if (changedId === 'miles' && (milesUnavailable || derivingRateDuringMileageEntry)) {
+  } else if (changedId === 'miles' && milesUnavailable) {
     milesUnavailable = false;
-    derivingRateDuringMileageEntry = true;
+    brokerRateInvalid = false;
+    if (brokerRate !== null) {
+      derivingRateDuringMileageEntry = false;
+      rateInput.value = String(Number(brokerRate.toFixed(4)));
+      const amount = brokerRate * miles;
+      revenueInput.value = Number.isFinite(amount) ? String(Number(amount.toPrecision(15))) : '';
+    } else {
+      derivingRateDuringMileageEntry = true;
+      brokerRate = Number.isFinite(revenue) && revenue >= 0 ? revenue / miles : null;
+      rateInput.value = brokerRate !== null && Number.isFinite(brokerRate)
+        ? String(Number(brokerRate.toFixed(4))) : '';
+    }
+  } else if (changedId === 'miles' && derivingRateDuringMileageEntry) {
     brokerRateInvalid = false;
     brokerRate = Number.isFinite(revenue) && revenue >= 0 ? revenue / miles : null;
     rateInput.value = brokerRate !== null && Number.isFinite(brokerRate)
